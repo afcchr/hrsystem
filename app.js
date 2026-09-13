@@ -4161,7 +4161,7 @@ function renderGuide(hash){
   return `<div class="guide">
     <div class="guide-off">
       <button class="guide-x" data-tour-start>Take the tour</button>
-      <button class="guide-x" data-guide-hide>${icon('close',12)} Hide guide</button>
+      <button class="guide-x" data-guide-hide>Hide guide</button>
     </div>
     <div class="guide-line">${g.line}</div>
     <div class="guide-grid">
