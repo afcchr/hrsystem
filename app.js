@@ -670,11 +670,6 @@ function viewDashboard(){
         <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
         <button class="btn primary" data-goto="#/recruitment/ats">${icon('users',15)} Applicant tracking</button>
       </div>
-      <div class="chicken-yard">
-        <span class="wander-chicken" id="theChicken" role="button" tabindex="0" title="Click me!" aria-label="Chicken (just for fun)">
-          <span class="chicken-bob">🐔</span>
-        </span>
-      </div>
     </div>${body}`;
 }
 function dashboardGreeting(){
@@ -3701,47 +3696,7 @@ function router(){
 }
 function refresh(){ router(); }
 
-function initWanderChicken(){
-  const btn = $('#theChicken');
-  if (!btn) return;
-  const pop = () => {
-    if (btn.classList.contains('exploding') || btn.classList.contains('gone')) return;
-    spawnFeathers(btn);
-    btn.classList.add('exploding');
-    setTimeout(() => { btn.classList.remove('exploding'); btn.classList.add('gone'); }, 2000);
-    setTimeout(() => {
-      btn.classList.remove('gone');
-      btn.classList.add('popback');
-      setTimeout(() => btn.classList.remove('popback'), 600);
-    }, 4000);
-  };
-  btn.onclick = pop;
-  btn.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pop(); } };
-}
-function spawnFeathers(btn){
-  const yard = btn.closest('.chicken-yard');
-  if (!yard) return;
-  const bRect = btn.getBoundingClientRect(), yRect = yard.getBoundingClientRect();
-  const originX = bRect.left - yRect.left + bRect.width / 2;
-  const originY = bRect.top - yRect.top + bRect.height / 2;
-  for (let i = 0; i < 7; i++){
-    const f = document.createElement('span');
-    f.className = 'feather';
-    f.textContent = '🪶';
-    const angle = (Math.PI * 2 * i / 7) + (Math.random() * 0.6 - 0.3);
-    const dist = 36 + Math.random() * 28;
-    f.style.left = originX + 'px';
-    f.style.top = originY + 'px';
-    f.style.setProperty('--fx', `${Math.cos(angle) * dist}px`);
-    f.style.setProperty('--fy', `${Math.sin(angle) * dist - 18}px`);
-    f.style.setProperty('--fr', `${Math.random() * 360 - 180}deg`);
-    f.style.animationDelay = `${Math.random() * 0.15}s`;
-    yard.appendChild(f);
-    setTimeout(() => f.remove(), 1400);
-  }
-}
 function bindViewControls(){
-  initWanderChicken();
   const attDate = $('#attDate');
   if (attDate) attDate.onchange = e => { attendanceDate = e.target.value; refresh(); };
   const shiftDept = $('#shiftDept');
