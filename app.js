@@ -3914,24 +3914,10 @@ function openUserMenu(){
     <div class="pop-head">
       <span class="avatar" style="background:#3f5a4c">${esc(u.initials||'')}</span>
       <div><div style="font-size:12.5px;font-weight:600">${esc(u.name||'')}</div>
-        <div style="font-size:11px;color:var(--ink-4)">${esc((AppState.currentSession && AppState.currentSession.email)||'')}</div></div></div>
+        <div style="font-size:11px;color:var(--ink-4)">${esc(u.roleName||'')}</div></div></div>
     <div class="pop-list">
-      <div class="palette-group">View the system as</div>
-      ${ROLES.map(r => `<button class="menu-item" data-role="${r.code}">
-        ${AppState.currentUser.role === r.code ? icon('check',15) : `<span style="width:15px"></span>`}
-        <span>${esc(r.name)}</span></button>`).join('')}
-      <div class="menu-sep"></div>
-      <button class="menu-item" data-goto="#/admin/roles">${icon('shield',15)} Roles and permissions</button>
-      <button class="menu-item" data-goto="#/admin/audit">${icon('history',15)} My activity</button>
-      <div class="menu-sep"></div>
-      <button class="menu-item" id="signOutBtn">${icon('arrowright',15)} Sign out</button>
-    </div>`, 292);
-  $$('#pop [data-role]').forEach(b => b.onclick = () => {
-    const r = ROLES.find(x => x.code === b.dataset.role);
-    AppState.currentUser.role = r.code; AppState.currentUser.roleName = r.name;
-    $('#roleLabel').textContent = r.name;
-    closePop(); toast('Role switched', `Now viewing as ${r.name}`); refresh();
-  });
+      <button class="menu-item" id="signOutBtn">Sign out</button>
+    </div>`, 220);
   const signOut = $('#signOutBtn');
   if (signOut) signOut.onclick = async () => { closePop(); await Auth.signOut(); location.reload(); };
 }
