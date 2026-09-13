@@ -4000,7 +4000,23 @@ function closePalette(){
 /* ---------------------------------------------------------------------------
    31. INITIALISE
    --------------------------------------------------------------------------- */
+/* ---- live clock: real system date/time, ticking every second ---- */
+let _clockTimer = null;
+function tickClock(){
+  const dEl = $('#liveClockDate'), tEl = $('#liveClockTime');
+  if (!dEl || !tEl) return;
+  const now = new Date();
+  dEl.textContent = now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+  tEl.textContent = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true });
+}
+function startClock(){
+  tickClock();
+  if (_clockTimer) clearInterval(_clockTimer);
+  _clockTimer = setInterval(tickClock, 1000);
+}
+
 function bindAppChrome(){
+  startClock();
   $('#menuToggle').innerHTML = icon('layers',17);
   $('#quickBtn').innerHTML = icon('bolt',17);
   renderNotifBadge();
