@@ -465,6 +465,8 @@ function renderNav(){
     openGroups.has(g) ? openGroups.delete(g) : openGroups.add(g);
     renderNav();
   });
+  const activeItem = nav.querySelector('.nav-item.active');
+  if (activeItem) activeItem.scrollIntoView({ block:'nearest' });
 }
 function renderNotifBadge(){
   const n = AppState.notifications.filter(x => !x.read).length;
@@ -4179,20 +4181,60 @@ function renderGuide(hash){
 const TOUR = [
   { view:'#/dashboard', label:'Dashboard', title:'Start with the question, not the data',
     text:'This is the only screen that tells you what to think. It reads every other module and rolls it up into a handful of numbers. Everything else in this system exists to make this screen worth a glance each morning.' },
-  { view:'#/recruitment/invitations', label:'Invitations', title:'Every hire starts as an invitation',
+  { view:'#/recruitment', label:'Pipeline overview', title:'A bird’s-eye view before you drill in',
+    text:'Every open position and how many applicants are sitting at each stage — screening, interviews, offers — before you click into any one of them.' },
+  { view:'#/recruitment/invitations', label:'Invitations & QR', title:'Every hire starts as an invitation',
     text:'HR generates a one-time link for a specific position and branch. Nothing else in the pipeline exists until an applicant opens it — the invitation is where an applicant record is born.' },
   { view:'#/recruitment/ats', label:'Applicant tracking', title:'The pipeline, in motion',
     text:'An applicant moves left to right through screening, interviews, and evaluation. The stage on this board is the single source of truth — nothing downstream trusts a stage it read anywhere else.' },
+  { view:'#/recruitment/screening', label:'Screening', title:'The first real judgment call',
+    text:'Does this applicant meet the minimum requirement for the role? A screening result here is what moves — or stops — someone on the pipeline board.' },
+  { view:'#/recruitment/interviews', label:'Interviews', title:'Scored per round, not just scheduled',
+    text:'Interviews recorded here carry a decision. That decision is what feeds the applicant’s stage change — this screen is a source, not just a calendar.' },
+  { view:'#/recruitment/assessments', label:'Assessments', title:'A pass/fail threshold, logged',
+    text:'Skills tests scored against a passing mark, filed against the applicant they belong to — another input the final evaluation weighs in.' },
+  { view:'#/recruitment/evaluation', label:'Final evaluation', title:'Where every score gets weighed together',
+    text:'Screening, interview, and assessment scores combine into one recommendation: Selected, Rejected, or On Hold. Nothing after this stage re-opens that decision.' },
+  { view:'#/recruitment/offers', label:'Job offers', title:'A salary and a start date, proposed',
+    text:'Sent to a Selected applicant. Once they accept, this is what starts the pre-employment checklist — nothing moves to Hired without an accepted offer first.' },
   { view:'#/recruitment/preemployment', label:'Pre-employment', title:'The last gate before Hired',
     text:'Every requirement here has to be checked off before an applicant can be converted to an employee. Skip one and you are hiring on an exception, not a rule.' },
-  { view:'#/employees', label:'Employees', title:'The record everything else attaches to',
+  { view:'#/employees', label:'Employee master', title:'The record everything else attaches to',
     text:'The moment someone is hired, they get an employee ID — and every attendance log, leave request, and evaluation from here on is filed against that one ID.' },
-  { view:'#/attendance', label:'Attendance', title:'Every working day, logged against that ID',
+  { view:'#/onboarding', label:'Onboarding', title:'The checklist before someone is fully in',
+    text:'Documents, orientation, equipment, system access — steps a new hire works through in their first days, tracked against their employee ID.' },
+  { view:'#/movement', label:'Career & movement', title:'Every change to a record, kept',
+    text:'Promotions, transfers, and salary adjustments — each one a change made to an existing employee record, not a new one.' },
+  { view:'#/offboarding', label:'Offboarding', title:'The last thing that happens to a record',
+    text:'Clearance, asset return, and final processing when someone separates — after this, their record moves from active to separated, nowhere else.' },
+  { view:'#/attendance', label:'Daily attendance', title:'Every working day, logged against that ID',
     text:'Shift, time in, time out, late minutes — all read from the same roster this screen shows for today. This is what the dashboard’s attendance summary is built from.' },
+  { view:'#/shifts', label:'Shift schedule', title:'What attendance checks itself against',
+    text:'Who’s assigned to which shift, for every day. Daily attendance compares a time-in against this schedule to decide if someone was late.' },
+  { view:'#/attendance/corrections', label:'Corrections', title:'The one thing allowed to override attendance',
+    text:'A request to fix a wrong time-in or time-out. Once approved, it’s the only thing that changes what attendance already shows for that day.' },
   { view:'#/leave', label:'Leave', title:'Time away, tracked the same way',
     text:'A leave request is filed against an employee ID and, once approved, changes what attendance shows for those dates automatically — no separate step required.' },
   { view:'#/performance', label:'Performance', title:'The decision that changes someone’s status',
     text:'A completed evaluation can move a probationary employee to Regular. Nothing else in the system can do that — this is the one screen with the authority to change someone’s employment status.' },
+  { view:'#/training', label:'Training', title:'What’s current, and what’s about to expire',
+    text:'Courses completed and certifications on file for every employee — and a clear flag on the ones expiring soon.' },
+  { view:'#/relations', label:'Employee relations', title:'Cases, separate from performance',
+    text:'Disciplinary actions, grievances, and incidents — logged and tracked to resolution on their own, deliberately kept apart from performance reviews.' },
+  { view:'#/compensation', label:'Compensation', title:'The numbers movements get checked against',
+    text:'Salary bands and current pay by department — what a promotion or an offer is compared to before it’s approved.' },
+  { view:'#/documents', label:'Documents', title:'What’s missing, not just what’s filed',
+    text:'Every employee’s required paperwork in one place, with the ones that are missing or about to expire surfaced first.' },
+  { view:'#/workforce', label:'Workforce planning', title:'Headcount against what was authorized',
+    text:'Active headcount compared to authorized positions, department by department — where a shortage becomes the reason to open a new invitation.' },
+  { view:'#/reports', label:'Reports & analytics', title:'The detail behind the dashboard’s summary',
+    text:'Every number the dashboard rolls up, broken back down — by department, by month, by whatever the report is filtered on.' },
+  { view:'#/admin/master', label:'Master data', title:'The reference lists everything else pulls from',
+    text:'Departments, branches, and positions — change one here and it’s reflected everywhere those fields are used, not just on this screen.' },
+  { view:'#/admin/roles', label:'Users & roles', title:'Who’s allowed to do what',
+    text:'Access in this system, by role. This is what decides whether someone can approve leave, hire an applicant, or just view a record.' },
+  { view:'#/admin/audit', label:'Audit trail', title:'The record behind every other record',
+    text:'Every action taken in this system, logged with who did it and when. If a number here ever looks wrong, this is where you’d trace it back.' },
 ];
 let tourIdx = 0;
 function startTour(){ tourIdx = 0; setGuideShown(true); paintTour(); }
