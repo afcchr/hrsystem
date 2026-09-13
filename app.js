@@ -92,6 +92,26 @@ function toast(title, msg, kind){
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 200); }, 3600);
 }
 
+/* ---------- tooltips (data-tip="...") ---------- */
+(function initTooltips(){
+  const tip = document.getElementById('tip');
+  if (!tip) return;
+  const moveTip = e => {
+    const r = tip.getBoundingClientRect();
+    let x = e.clientX + 14, y = e.clientY + 16;
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 12;
+    if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 12;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  };
+  document.addEventListener('mouseover', e => {
+    const t = e.target.closest('[data-tip]'); if (!t) return;
+    tip.innerHTML = t.dataset.tipHtml ? t.dataset.tip : esc(t.dataset.tip);
+    tip.classList.add('show'); moveTip(e);
+  });
+  document.addEventListener('mousemove', e => { if (tip.classList.contains('show')) moveTip(e); });
+  document.addEventListener('mouseout', e => { if (e.target.closest('[data-tip]')) tip.classList.remove('show'); });
+})();
+
 let drawerStack = [];
 function openDrawer(html, opts){
   opts = opts || {};
@@ -330,7 +350,7 @@ function hbars(rows, opts){
   const max = Math.max(...rows.map(r => r.value), 1);
   return `<div>${rows.map(r => `
     <div class="hbar">
-      <span class="lab" title="${esc(r.label)}">${esc(r.label)}</span>
+      <span class="lab" data-tip="${esc(r.label)}">${esc(r.label)}</span>
       <span class="track"><span class="fill ${r.mut?'mut':''}" style="width:${Math.max(2, r.value/max*100)}%"></span></span>
       <span class="val">${opts.fmt ? opts.fmt(r) : r.value}</span>
     </div>`).join('')}</div>`;
@@ -666,7 +686,7 @@ function viewDashboard(){
   return `<div class="page-head">
       <div style="min-width:0">
         <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon-wrap">
-          <span class="greet-moon" id="greetMoon" role="button" tabindex="0" title="Click me">${greetingEmoji()}</span>
+          <span class="greet-moon" id="greetMoon" role="button" tabindex="0" data-tip="Click me">${greetingEmoji()}</span>
           <span class="moon-cloud" id="moonCloud"><span id="moonCloudText"></span><span class="moon-cloud-tail"></span></span>
         </span></h1>
       </div>
@@ -900,9 +920,9 @@ function viewInvitations(){
           ? `<button class="btn ghost sm num" data-open-app="${esc(r.applicationId)}">${esc(r.applicationId)}</button>`
           : `<span class="dim">—</span>` },
       { key:'act', label:'', w:'92px', sort:false, render:r => `<div class="rowactions">
-          <button class="icon-btn" title="Show QR" data-inv-qr="${esc(r.id)}">${icon('qr',15)}</button>
-          <button class="icon-btn" title="Copy link" data-copy="${esc(applyURL(r.id))}">${icon('copy',15)}</button>
-          <button class="icon-btn" title="More" data-inv-menu="${esc(r.id)}">${icon('dots',15)}</button>
+          <button class="icon-btn" data-tip="Show QR" data-inv-qr="${esc(r.id)}">${icon('qr',15)}</button>
+          <button class="icon-btn" data-tip="Copy link" data-copy="${esc(applyURL(r.id))}">${icon('copy',15)}</button>
+          <button class="icon-btn" data-tip="More" data-inv-menu="${esc(r.id)}">${icon('dots',15)}</button>
         </div>` },
     ],
     onRow:id => openInvitationDrawer(id),
@@ -2026,7 +2046,7 @@ function renderExpRows(keep){
     const v = existing[i] || {};
     return `<div class="exp-row">
       <div class="exp-head"><b>Employer ${i+1}</b><div style="flex:1 1 auto"></div>
-        ${i > 0 ? `<button type="button" class="icon-btn" data-rm-exp="${i}" title="Remove">${icon('trash',14)}</button>` : ''}</div>
+        ${i > 0 ? `<button type="button" class="icon-btn" data-rm-exp="${i}" data-tip="Remove">${icon('trash',14)}</button>` : ''}</div>
       <div class="fgrid fg2">
         <label class="field"><span class="flabel">Company name</span><input class="input" name="expCompany" value="${esc(v.company||'')}"></label>
         <label class="field"><span class="flabel">Position held</span><input class="input" name="expPosition" value="${esc(v.position||'')}"></label>
@@ -2751,7 +2771,7 @@ function viewLeave(){
             const evs = rows.filter(r => r.status === 'Approved' && ds >= r.start && ds <= r.end);
             return `<div class="cal-cell ${ds === d2s(TODAY) ? 'today' : ''}">
               <div class="cal-date">${c.getDate()}</div>
-              ${evs.slice(0,3).map(r => `<button class="cal-ev ${(LEAVE_TYPES.find(t=>t.code===r.type)||{}).cls}" title="${esc(r.e.name)} · ${esc(r.type)}">${esc(r.e.first || r.e.name.split(' ')[0])} ${esc(r.type)}</button>`).join('')}
+              ${evs.slice(0,3).map(r => `<button class="cal-ev ${(LEAVE_TYPES.find(t=>t.code===r.type)||{}).cls}" data-tip="${esc(r.e.name)} · ${esc(r.type)}">${esc(r.e.first || r.e.name.split(' ')[0])} ${esc(r.type)}</button>`).join('')}
               ${evs.length > 3 ? `<div class="dim" style="font-size:10.5px;margin-top:2px">+${evs.length-3} more</div>` : ''}
             </div>`;
           }).join('')}

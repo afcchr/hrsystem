@@ -56,10 +56,10 @@
 
   <div class="main">
     <header class="topbar">
-      <button class="icon-btn menu-toggle" id="menuToggle" title="Toggle sidebar" aria-label="Toggle sidebar"></button>
+      <button class="icon-btn menu-toggle" id="menuToggle" data-tip="Toggle sidebar" aria-label="Toggle sidebar"></button>
       <div class="crumbs" id="crumbs"></div>
       <div class="topbar-spacer"></div>
-      <div class="live-clock" id="liveClock" title="Live · system is active">
+      <div class="live-clock" id="liveClock" data-tip="Live · system is active">
         <span class="dot pulse live-clock-dot"></span>
         <span class="live-clock-date" id="liveClockDate"></span>
         <span class="live-clock-time" id="liveClockTime"></span>
@@ -69,9 +69,9 @@
         <span>Search people, applications…</span>
         <span class="kbd">⌘K</span>
       </button>
-      <button class="icon-btn" id="quickBtn" title="Quick actions" aria-label="Quick actions"></button>
-      <button class="icon-btn bordered" id="themeToggle" title="Switch appearance" aria-label="Switch appearance"></button>
-      <button class="icon-btn" id="notifBtn" title="Notifications" aria-label="Notifications"></button>
+      <button class="icon-btn" id="quickBtn" data-tip="Quick actions" aria-label="Quick actions"></button>
+      <button class="icon-btn bordered" id="themeToggle" data-tip="Switch appearance" aria-label="Switch appearance"></button>
+      <button class="icon-btn" id="notifBtn" data-tip="Notifications" aria-label="Notifications"></button>
     </header>
     <main class="content" id="view"></main>
   </div>
@@ -83,6 +83,7 @@
 <div class="palette" id="palette" role="dialog" aria-label="Global search"></div>
 <div class="pop" id="pop"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="tip"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>

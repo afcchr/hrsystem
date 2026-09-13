@@ -712,6 +712,16 @@ select.input{
 @keyframes toastIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes toastOut{to{opacity:0;transform:translateY(4px)}}
 
+/* ---------- Tooltip ---------- */
+#tip{
+  position:fixed;z-index:200;background:var(--ink);color:var(--paper);font-size:11.5px;padding:5px 8px;
+  border-radius:var(--r);pointer-events:none;opacity:0;transition:opacity 120ms var(--fast);
+  box-shadow:var(--shadow-pop);max-width:260px;line-height:1.45;
+}
+[data-theme="dark"] #tip{background:var(--recess-2);color:var(--ink);border:1px solid var(--line)}
+#tip.show{opacity:1}
+#tip b{font-weight:640}
+
 /* ---------- Command palette / global search ---------- */
 .palette{
   position:fixed;left:50%;top:14vh;transform:translateX(-50%) translateY(-6px);width:min(620px,94vw);
