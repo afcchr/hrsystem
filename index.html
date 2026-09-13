@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Art Fresh Chicken Corp. — Human Resource Management System</title>
+
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- Public applicant portal mounts here (replaces the admin shell on /apply routes) -->
+<div id="portalRoot" class="hidden"></div>
+
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">AF</div>
+      <div>
+        <div class="brand-name">Art Fresh Chicken</div>
+        <div class="brand-sub">Human Resources</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="sidebar-foot">
+      <div class="env-pill">
+        <span class="dot pulse"></span>
+        <span>Prototype · mock data</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Open menu"></button>
+      <div class="crumbs" id="crumbs"></div>
+      <div class="topbar-spacer"></div>
+      <button class="search-trigger" id="searchTrigger" aria-label="Search">
+        <span class="ico" data-ico="search"></span>
+        <span>Search people, applications…</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <button class="icon-btn" id="quickBtn" title="Quick actions" aria-label="Quick actions"></button>
+      <button class="icon-btn" id="notifBtn" title="Notifications" aria-label="Notifications"></button>
+      <button class="user-chip" id="userBtn">
+        <span class="avatar" style="background:#3f5a4c">MR</span>
+        <span class="user-meta"><b>Maria Reyes</b><span id="roleLabel">HR Manager</span></span>
+      </button>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Detail panel"></aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+<div class="palette" id="palette" role="dialog" aria-label="Global search"></div>
+<div class="pop" id="pop"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="qr.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
