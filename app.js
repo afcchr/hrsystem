@@ -607,7 +607,6 @@ function hrTasks(){
 function viewDashboard(){
   const emps = activeEmployees();
   const newHires = emps.filter(e => daysBetween(e.hired, d2s(TODAY)) <= 30).length;
-  const openPositions = DEPARTMENTS.reduce((s,d) => s + Math.max(0, d.authorized - emps.filter(e => e.dept === d.code).length), 0);
   const activeApps = AppState.applicants.filter(a => !['Hired','Rejected','Withdrawn'].includes(a.stage)).length;
   const upcomingIv = AppState.applicants.flatMap(a => a.interviews.filter(i => i.status === 'Scheduled')).length;
   const pendingLeave = AppState.leave.filter(l => ['For Approval','Pending'].includes(l.status)).length;
@@ -627,7 +626,6 @@ function viewDashboard(){
   ${metricStrip([
     { label:'Total employees', value:emps.length, note:`${AppState.employees.length - emps.length} separated on file`, route:'#/employees' },
     { label:'New hires (30 days)', value:newHires, note:`${AppState.employees.filter(e => e.separatedOn && daysBetween(e.separatedOn, d2s(TODAY)) <= 30).length} separations in the same period`, route:'#/onboarding' },
-    { label:'Open positions', value:openPositions, note:'against authorised headcount', route:'#/workforce' },
     { label:'Active applicants', value:activeApps, note:`${AppState.applicants.filter(a=>a.stage==='Submitted').length} awaiting screening`, route:'#/recruitment/ats' },
     { label:'Upcoming interviews', value:upcomingIv, note:'next 7 days', route:'#/recruitment/interviews' },
     { label:'Leave for approval', value:pendingLeave, note:'oldest filed 3 days ago', route:'#/leave' },
