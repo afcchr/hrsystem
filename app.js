@@ -3903,11 +3903,12 @@ function openQuickActions(){
     <button class="menu-item" data-goto="#/admin/audit">${icon('history',15)} Audit trail</button>`, 300);
 }
 function openUserMenu(){
+  const u = AppState.currentUser;
   openPop($('#userBtn'), `
     <div class="pop-head">
-      <span class="avatar" style="background:#3f5a4c">MR</span>
-      <div><div style="font-size:12.5px;font-weight:600">Maria Reyes</div>
-        <div style="font-size:11px;color:var(--ink-4)">maria.reyes@artfreshchicken.ph</div></div></div>
+      <span class="avatar" style="background:#3f5a4c">${esc(u.initials||'')}</span>
+      <div><div style="font-size:12.5px;font-weight:600">${esc(u.name||'')}</div>
+        <div style="font-size:11px;color:var(--ink-4)">${esc((AppState.currentSession && AppState.currentSession.email)||'')}</div></div></div>
     <div class="pop-list">
       <div class="palette-group">View the system as</div>
       ${ROLES.map(r => `<button class="menu-item" data-role="${r.code}">
@@ -3916,6 +3917,8 @@ function openUserMenu(){
       <div class="menu-sep"></div>
       <button class="menu-item" data-goto="#/admin/roles">${icon('shield',15)} Roles and permissions</button>
       <button class="menu-item" data-goto="#/admin/audit">${icon('history',15)} My activity</button>
+      <div class="menu-sep"></div>
+      <button class="menu-item" id="signOutBtn">${icon('arrowright',15)} Sign out</button>
     </div>`, 292);
   $$('#pop [data-role]').forEach(b => b.onclick = () => {
     const r = ROLES.find(x => x.code === b.dataset.role);
@@ -3923,6 +3926,8 @@ function openUserMenu(){
     $('#roleLabel').textContent = r.name;
     closePop(); toast('Role switched', `Now viewing as ${r.name}`); refresh();
   });
+  const signOut = $('#signOutBtn');
+  if (signOut) signOut.onclick = async () => { closePop(); await Auth.signOut(); location.reload(); };
 }
 
 /* ---------- command palette ---------- */
@@ -3995,11 +4000,7 @@ function closePalette(){
 /* ---------------------------------------------------------------------------
    31. INITIALISE
    --------------------------------------------------------------------------- */
-function init(){
-  AppState.employees = generateEmployees();
-  seedRecruitment();
-  seedHR();
-
+function bindAppChrome(){
   $('#menuToggle').innerHTML = icon('layers',17);
   $('#quickBtn').innerHTML = icon('bolt',17);
   renderNotifBadge();
@@ -4017,11 +4018,100 @@ function init(){
     if (e.key === 'Escape'){ closePalette(); closePop(); if ($('#modal').classList.contains('show')) closeModal(); else closeDrawer(); }
   });
   window.addEventListener('hashchange', router);
+}
 
-  if (!location.hash) location.hash = '#/dashboard';
+function applyCurrentUserToChrome(){
+  const u = AppState.currentUser; const btn = $('#userBtn');
+  if (!btn || !u) return;
+  const av = btn.querySelector('.avatar'); if (av) av.textContent = u.initials;
+  const nameEl = btn.querySelector('.user-meta b'); if (nameEl) nameEl.textContent = u.name;
+  const roleEl = $('#roleLabel'); if (roleEl) roleEl.textContent = u.roleName;
+}
+
+/* ---- admin shell: requires a signed-in HR account, backed by Supabase ---- */
+async function bootAdmin(){
+  $('#bootLoading').classList.remove('hidden');
+  $('#authScreen').classList.add('hidden');
+  try{
+    await seedDatabaseIfEmpty();
+    await loadAppStateFromDB();
+  }catch(e){ console.error('[Supabase] failed to load HR data', e); }
+
+  $('#bootLoading').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+
+  bindAppChrome();
+  applyCurrentUserToChrome();
+  if (!location.hash || location.hash.startsWith('#/apply/')) location.hash = '#/dashboard';
   router();
 }
+
+function wireAuthForm(){
+  const form = $('#authForm'), submitBtn = $('#authSubmit'), errBox = $('#authError');
+  form.onsubmit = async e => {
+    e.preventDefault();
+    errBox.classList.add('hidden');
+    submitBtn.disabled = true;
+    const email = $('#authEmail').value.trim();
+    const password = $('#authPassword').value;
+    try{
+      const { error } = await Auth.signIn(email, password);
+      if (error) throw error;
+      const session = await Auth.getSession();
+      if (!session) throw new Error('Sign in failed. Please try again.');
+      const profile = await Auth.getProfile(session.user.id);
+      applyProfile(profile, session.user.email);
+      await bootAdmin();
+    }catch(err){
+      errBox.textContent = err.message || 'Invalid email or password.';
+      errBox.classList.remove('hidden');
+    }finally{
+      submitBtn.disabled = false;
+    }
+  };
+}
+
+/* ---- public applicant portal: no login, and no direct table access at all —
+   only the invitation named in the URL is ever fetched, via a SECURITY
+   DEFINER function that can't be used to list or browse other invitations. */
+async function loadPortalInvitation(){
+  const invId = location.hash.replace('#/apply/','');
+  try{
+    const { data, error } = await sb.rpc('portal_get_invitation', { p_id: invId });
+    if (error) console.error('[Supabase] portal_get_invitation failed', error);
+    AppState.invitations = data ? [data] : [];
+  }catch(e){ console.error('[Supabase] failed to load invitation', e); AppState.invitations = []; }
+}
+async function bootPortal(){
+  await loadPortalInvitation();
+  $('#bootLoading').classList.add('hidden');
+  window.addEventListener('hashchange', async () => {
+    if (location.hash.startsWith('#/apply/')) await loadPortalInvitation();
+    router();
+  });
+  router();
+}
+
 let _booted = false;
-function boot(){ if (_booted) return; _booted = true; init(); }
+async function boot(){
+  if (_booted) return; _booted = true;
+
+  if (location.hash.startsWith('#/apply/')){
+    await bootPortal();
+    return;
+  }
+
+  wireAuthForm();
+  let session = null;
+  try{ session = await Auth.getSession(); }catch(e){ console.error('[Supabase] session check failed', e); }
+  if (!session){
+    $('#bootLoading').classList.add('hidden');
+    $('#authScreen').classList.remove('hidden');
+    return;
+  }
+  const profile = await Auth.getProfile(session.user.id);
+  applyProfile(profile, session.user.email);
+  await bootAdmin();
+}
 document.addEventListener('DOMContentLoaded', boot);
 if (document.readyState !== 'loading') boot();

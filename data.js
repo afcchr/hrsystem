@@ -677,6 +677,8 @@ const empById = id => AppState.employees.find(e => e.id === id);
 const appById = id => AppState.applicants.find(a => a.id === id);
 const invById = id => AppState.invitations.find(i => i.id === id);
 
+const ONB_STEPS = ['Employee Created','Documents','Orientation','Policy Acknowledgment','Department Assignment','Equipment / Uniform','System Access','Supervisor Handover','Onboarding Complete'];
+
 /* ---- leave, performance, training, cases, movement, offboarding ----------- */
 function seedHR(){
   const emps = activeEmployees();
@@ -837,7 +839,6 @@ function seedHR(){
   AppState.offboarding.forEach(o => { if (o.status === 'Completed'){ const e = empById(o.emp); if (e){ e.status = 'Separated'; e.separatedOn = o.lastDay; } } });
 
   /* onboarding for recent hires */
-  const ONB_STEPS = ['Employee Created','Documents','Orientation','Policy Acknowledgment','Department Assignment','Equipment / Uniform','System Access','Supervisor Handover','Onboarding Complete'];
   AppState.onboarding = AppState.applicants.filter(a => a.stage === 'Hired').map((a, i) => {
     const e = emps[hashCode('n'+i) % emps.length];
     return { id:`ONB-2026-${String(90+i)}`, emp:e.id, applicationId:a.id, started:d2s(addDays(TODAY,-rint(4,20))), steps:ONB_STEPS, stepIdx: i === 0 ? 6 : 8, owner:'Katrina Espino' };
@@ -905,6 +906,7 @@ const MockAPI = {
   _audit(module, action, record, detail){
     const now = new Date();
     AppState.audit.unshift({
+      id:(crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`),
       at:`${d2s(TODAY)} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
       user:AppState.currentUser.name, module, action, record, detail,
     });
@@ -946,7 +948,10 @@ const MockAPI = {
     if (inv.status === 'Revoked') return { ok:false, error:'revoked' };
     if (s2d(inv.expires) < TODAY) return { ok:false, error:'expired' };
 
-    const id = `APP-2026-${String(AppState.seq.app++).padStart(5,'0')}`;
+    // Applicants come in from the public portal (possibly anonymous, no read
+    // access to existing applicant ids), so this can't rely on an in-memory
+    // counter without risking two applicants colliding on the same id.
+    const id = `APP-2026-${(crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'').slice(0,8) : `${Date.now().toString(16)}${Math.floor(Math.random()*1e6).toString(16)}`)}`;
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const a = {
@@ -1216,3 +1221,196 @@ const MockAPI = {
     return o;
   },
 };
+
+/* ---------------------------------------------------------------------------
+   10. SUPABASE CONNECTION
+   AppState stays the fast, synchronous read model every render() call already
+   uses. Supabase is the persistence layer behind it: on boot we hydrate
+   AppState from the database, and every MockAPI mutation is mirrored to
+   Supabase in the background (fire-and-forget) right after it happens, so
+   nothing about the existing UI code above has to change.
+   --------------------------------------------------------------------------- */
+const DOC_TABLES = {
+  employees:'employees', applicants:'applicants', invitations:'invitations',
+  leave:'leave_requests', performance:'performance_reviews', trainings:'trainings',
+  trainingSessions:'training_sessions', cases:'cases', movements:'movements',
+  offboarding:'offboarding', onboarding:'onboarding', notifications:'notifications',
+  audit:'audit_log', corrections:'corrections',
+};
+const DICT_TABLES = { attendanceOverrides:'attendance_overrides', docOverrides:'doc_overrides', shiftOverrides:'shift_overrides' };
+
+const Store = {
+  async upsert(table, id, value){
+    try{
+      const { error } = await sb.from(table).upsert({ id:String(id), data:value, updated_at:new Date().toISOString() });
+      if (error) console.error('[Supabase] upsert failed', table, id, error);
+    }catch(e){ console.error('[Supabase] upsert threw', table, id, e); }
+  },
+  async remove(table, id){
+    try{
+      const { error } = await sb.from(table).delete().eq('id', String(id));
+      if (error) console.error('[Supabase] delete failed', table, id, error);
+    }catch(e){ console.error('[Supabase] delete threw', table, id, e); }
+  },
+  async fetchAll(table){
+    const { data, error } = await sb.from(table).select('id,data');
+    if (error){ console.error('[Supabase] fetch failed', table, error); return []; }
+    return data || [];
+  },
+  async count(table){
+    const { count, error } = await sb.from(table).select('id', { count:'exact', head:true });
+    if (error){ console.error('[Supabase] count failed', table, error); return 0; }
+    return count || 0;
+  },
+};
+
+const Auth = {
+  // No self-service sign-up: HR accounts are created by the administrator
+  // in the Supabase dashboard (Authentication > Users), never from this app.
+  async signIn(email, password){ return sb.auth.signInWithPassword({ email, password }); },
+  async signOut(){ return sb.auth.signOut(); },
+  async getSession(){ const { data } = await sb.auth.getSession(); return data.session; },
+  async getProfile(userId){
+    const { data, error } = await sb.from('profiles').select('*').eq('id', userId).maybeSingle();
+    if (error){ console.error('[Supabase] profile fetch failed', error); return null; }
+    return data;
+  },
+};
+
+function applyProfile(profile, email){
+  AppState.currentSession = { email };
+  if (!profile){
+    AppState.currentUser = { name:email, role:'HRMGR', roleName:'HR Manager', initials:email.slice(0,2).toUpperCase() };
+    return;
+  }
+  AppState.currentUser = {
+    name: profile.name || email, role: profile.role || 'HRMGR',
+    roleName: profile.role_name || 'HR Manager', initials: profile.initials || (profile.name||email).slice(0,2).toUpperCase(),
+  };
+}
+
+/** One-time: if the database is empty, generate the same demo dataset the
+ *  prototype used to fabricate in memory, then push it into Supabase. */
+async function seedDatabaseIfEmpty(){
+  const existing = await Store.count('employees');
+  if (existing > 0) return false;
+
+  AppState.employees = generateEmployees();
+  seedRecruitment();
+  seedHR();
+
+  await Promise.all(Object.entries(DOC_TABLES).map(async ([key, table]) => {
+    const rows = (AppState[key] || []).map(item => ({ id:String(item.id), data:item }));
+    for (let i = 0; i < rows.length; i += 400){
+      const { error } = await sb.from(table).upsert(rows.slice(i, i + 400));
+      if (error) console.error('[Supabase] seed insert failed', table, error);
+    }
+  }));
+  await Promise.all(Object.entries(DICT_TABLES).map(async ([key, table]) => {
+    const rows = Object.entries(AppState[key] || {}).map(([id, data]) => ({ id, data }));
+    if (!rows.length) return;
+    const { error } = await sb.from(table).upsert(rows);
+    if (error) console.error('[Supabase] seed insert failed', table, error);
+  }));
+  return true;
+}
+
+/** Hydrate AppState from Supabase (normal boot path, after the first seed). */
+async function loadAppStateFromDB(){
+  const docEntries = Object.entries(DOC_TABLES);
+  const docResults = await Promise.all(docEntries.map(([, table]) => Store.fetchAll(table)));
+  docEntries.forEach(([key], i) => { AppState[key] = docResults[i].map(row => row.data); });
+
+  const dictEntries = Object.entries(DICT_TABLES);
+  const dictResults = await Promise.all(dictEntries.map(([, table]) => Store.fetchAll(table)));
+  dictEntries.forEach(([key], i) => {
+    const dict = {};
+    dictResults[i].forEach(row => { dict[row.id] = row.data; });
+    AppState[key] = dict;
+  });
+
+  AppState.onboardingSteps = ONB_STEPS;
+  AppState.notifications.sort((a,b) => (b.id||0) - (a.id||0));
+  AppState.audit.sort((a,b) => (b.at||'').localeCompare(a.at||''));
+
+  const maxSuffix = list => {
+    let max = 0;
+    (list||[]).forEach(x => { const m = String((x||{}).id||'').match(/(\d+)$/); if (m) max = Math.max(max, parseInt(m[1],10)); });
+    return max;
+  };
+  let maxOfr = 0;
+  AppState.applicants.forEach(a => { if (a.offer && a.offer.id){ const m = String(a.offer.id).match(/(\d+)$/); if (m) maxOfr = Math.max(maxOfr, parseInt(m[1],10)); } });
+  const seqOr = (found, dflt) => found > 0 ? found + 1 : dflt;
+  AppState.seq = {
+    app: seqOr(maxSuffix(AppState.applicants), 489),
+    emp: seqOr(maxSuffix(AppState.employees), 210),
+    inv: seqOr(maxSuffix(AppState.invitations), 1253),
+    case: seqOr(maxSuffix(AppState.cases), 38),
+    ofr: seqOr(maxOfr, 120),
+  };
+}
+
+/* ---- mirror every MockAPI mutation to Supabase, without touching the
+   methods above or any of their call sites in app.js ---------------------- */
+const PERSIST_MAP = {
+  _audit: () => { const r = AppState.audit[0]; if (r) Store.upsert('audit_log', r.id, r); },
+  _notify: () => { const r = AppState.notifications[0]; if (r) Store.upsert('notifications', r.id, r); },
+  createInvitation: r => r && Store.upsert('invitations', r.id, r),
+  // openInvitation/submitApplication only ever run from the public, unauthenticated
+  // portal — go through the narrow portal_* RPC functions (SECURITY DEFINER),
+  // never the raw tables, so the anon key can't read or list invitations directly.
+  openInvitation: (r, args) => { if (r) sb.rpc('portal_open_invitation', { p_id: args[0] }).then(({ error }) => { if (error) console.error('[Supabase] portal_open_invitation failed', error); }); },
+  revokeInvitation: (r, args) => { if (!r) return; const inv = invById(args[0]); if (inv) Store.upsert('invitations', inv.id, inv); },
+  submitApplication: (r, args) => {
+    if (!r || !r.ok) return;
+    sb.rpc('portal_submit_application', { p_id: args[0], p_applicant: r.application }).then(({ error }) => {
+      if (error) console.error('[Supabase] portal_submit_application failed', error);
+    });
+  },
+  setStage: r => r && Store.upsert('applicants', r.id, r),
+  saveScreening: r => r && Store.upsert('applicants', r.id, r),
+  scheduleInterview: (r, args) => { const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a); },
+  saveInterviewResult: (r, args) => { const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a); },
+  addAssessment: r => r && Store.upsert('applicants', r.id, r),
+  saveEvaluation: (r, args) => { const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a); },
+  createOffer: (r, args) => { const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a); },
+  setOfferStatus: (r, args) => { const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a); },
+  setRequirement: (r, args) => { const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a); },
+  convertToEmployee: (r, args) => {
+    if (!r || !r.ok) return;
+    Store.upsert('employees', r.employee.id, r.employee);
+    const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a);
+    const onb = AppState.onboarding[0]; if (onb) Store.upsert('onboarding', onb.id, onb);
+  },
+  advanceOnboarding: r => r && Store.upsert('onboarding', r.id, r),
+  setLeaveStatus: r => r && Store.upsert('leave_requests', r.id, r),
+  fileLeave: r => r && Store.upsert('leave_requests', r.id, r),
+  fileCorrection: r => r && Store.upsert('corrections', r.id, r),
+  setCorrectionStatus: r => {
+    if (!r) return;
+    Store.upsert('corrections', r.id, r);
+    if (r.status === 'Approved'){ const key = r.emp + r.date; Store.upsert('attendance_overrides', key, AppState.attendanceOverrides[key]); }
+  },
+  assignShift: (r, args) => { const key = args[0] + args[1]; Store.upsert('shift_overrides', key, AppState.shiftOverrides[key]); },
+  saveReview: r => {
+    if (!r) return;
+    Store.upsert('performance_reviews', r.id, r);
+    const e = empById(r.emp); if (e) Store.upsert('employees', e.id, e);
+  },
+  addCase: r => r && Store.upsert('cases', r.id, r),
+  updateCase: r => r && Store.upsert('cases', r.id, r),
+  startOffboarding: r => r && Store.upsert('offboarding', r.id, r),
+  advanceOffboarding: r => {
+    if (!r) return;
+    Store.upsert('offboarding', r.id, r);
+    if (r.status === 'Completed'){ const e = empById(r.emp); if (e) Store.upsert('employees', e.id, e); }
+  },
+};
+Object.keys(PERSIST_MAP).forEach(name => {
+  const original = MockAPI[name];
+  MockAPI[name] = function(...args){
+    const result = original.apply(MockAPI, args);
+    try{ PERSIST_MAP[name](result, args); }catch(e){ console.error('[Supabase] persist mapping failed for', name, e); }
+    return result;
+  };
+});
