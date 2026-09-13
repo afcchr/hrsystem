@@ -671,9 +671,9 @@ function viewDashboard(){
         <button class="btn primary" data-goto="#/recruitment/ats">${icon('users',15)} Applicant tracking</button>
       </div>
       <div class="chicken-yard">
-        <button class="wander-chicken" id="theChicken" type="button" title="Click me!" aria-label="Chicken (just for fun)">
+        <span class="wander-chicken" id="theChicken" role="button" tabindex="0" title="Click me!" aria-label="Chicken (just for fun)">
           <span class="chicken-bob">🐔</span>
-        </button>
+        </span>
       </div>
     </div>${body}`;
 }
@@ -3704,7 +3704,7 @@ function refresh(){ router(); }
 function initWanderChicken(){
   const btn = $('#theChicken');
   if (!btn) return;
-  btn.onclick = () => {
+  const pop = () => {
     if (btn.classList.contains('exploding') || btn.classList.contains('gone')) return;
     spawnFeathers(btn);
     btn.classList.add('exploding');
@@ -3715,6 +3715,8 @@ function initWanderChicken(){
       setTimeout(() => btn.classList.remove('popback'), 600);
     }, 4000);
   };
+  btn.onclick = pop;
+  btn.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pop(); } };
 }
 function spawnFeathers(btn){
   const yard = btn.closest('.chicken-yard');

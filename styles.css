@@ -275,12 +275,12 @@ svg{display:block}
   overflow:visible;pointer-events:none;z-index:1;
 }
 .wander-chicken{
-  position:absolute;bottom:6px;left:0;font-size:26px;line-height:1;
-  background:none;border:0;padding:4px;margin:0;cursor:pointer;pointer-events:auto;
+  display:inline-block;position:absolute;bottom:6px;left:0;font-size:19px;line-height:1.4;
+  cursor:pointer;pointer-events:auto;overflow:visible;
   animation:chickenRoam 18s ease-in-out infinite;
   transform-origin:50% 100%;
 }
-.wander-chicken .chicken-bob{display:inline-block;animation:chickenBob .4s ease-in-out infinite}
+.wander-chicken .chicken-bob{display:inline-block;overflow:visible;animation:chickenBob .4s ease-in-out infinite}
 
 /* the roam: hops near the greeting text, strolls toward the buttons,
    pauses/ducks like it's peeking, then heads back */
