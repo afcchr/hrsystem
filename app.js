@@ -1787,7 +1787,7 @@ function portalShell(inner, showSteps, stepIdx){
   return `
   <div class="portal">
     <header class="portal-top">
-      <div class="brand-mark" style="width:26px;height:26px;font-size:11px">AF</div>
+      <img class="brand-mark" src="logo.png" alt="Art Fresh Chicken" style="width:26px;height:26px" />
       <div>
         <div style="font-size:13.5px;font-weight:620;letter-spacing:-.012em">${esc(COMPANY.name)}</div>
         <div style="font-size:11px;color:var(--ink-4)">Application portal</div>
