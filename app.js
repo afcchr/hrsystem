@@ -3708,7 +3708,7 @@ function router(){
     renderCrumbs();
   }
   const v = $('#view');
-  v.innerHTML = html;
+  v.innerHTML = renderGuide(hash) + html;
   v.scrollTop = 0;
   window.scrollTo(0,0);
   pendingTables.forEach(t => t.mount());
@@ -3794,6 +3794,9 @@ document.addEventListener('click', e => {
 
   const goto = t.closest('[data-goto]');
   if (goto){ if (goto.hasAttribute('data-close-modal')) closeModal(); closeDrawer(); go(goto.dataset.goto); return; }
+
+  const guideHide = t.closest('[data-guide-hide]');
+  if (guideHide){ setGuideShown(false); $('#guideBtn').classList.remove('on'); refresh(); return; }
 
   const closeM = t.closest('[data-close-modal]'); if (closeM){ closeModal(); return; }
   const closeD = t.closest('[data-close-drawer]'); if (closeD){ closeDrawer(); return; }
@@ -4084,12 +4087,95 @@ function toggleTheme(){
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
+/* ---------- on-screen guide ---------- */
+const GUIDE_KEY = 'hrms-guide-shown';
+function isGuideShown(){
+  try{ const v = localStorage.getItem(GUIDE_KEY); return v === null ? true : v === '1'; }catch(e){ return true; }
+}
+function setGuideShown(v){ try{ localStorage.setItem(GUIDE_KEY, v ? '1' : '0'); }catch(e){} }
+
+const GUIDES = {
+  '#/dashboard': {
+    line: `Your daily snapshot. This screen owns no data of its own — it <b>summarizes</b> recruitment, workforce, and attendance from every other module.`,
+    cols: [
+      { label:'What you do here', items:['Check headcount, open positions, and today’s attendance at a glance','Jump straight into a module from any number on this screen','Watch for expiring documents and pending approvals'] },
+      { label:'Where its numbers come from', items:['Employee records and today’s attendance log','Active applications, invitations, and interviews in the next 7 days'] },
+      { label:'What it feeds', items:['Nothing — this is a mirror, not a source'] },
+    ],
+    chips: [{ label:'New invitation', route:'#/recruitment/invitations' }, { label:'Applicant tracking', route:'#/recruitment/ats' }],
+  },
+  '#/recruitment/ats': {
+    line: `The hiring pipeline. Every applicant moves left to right through these stages as HR reviews them.`,
+    cols: [
+      { label:'What you do here', items:['Screen, shortlist, and move applicants through each stage','Open a card to see the full application, timeline, and notes'] },
+      { label:'Where its numbers come from', items:['Applications submitted through invitation links','Screening scores and interview results entered by HR'] },
+      { label:'What it feeds', items:['Pre-employment requirements once an offer is accepted','The employee master once someone is hired'] },
+    ],
+    watch: `An applicant only reaches Hired after every pre-employment requirement is marked complete.`,
+  },
+  '#/leave': {
+    line: `Leave requests and approvals for every active employee.`,
+    cols: [
+      { label:'What you do here', items:['Review and approve or reject leave requests','File a leave request on behalf of an employee'] },
+      { label:'Where its numbers come from', items:['Leave filed by or for employees, with type and date range'] },
+      { label:'What it feeds', items:['Attendance — approved leave shows as On Leave for those dates'] },
+    ],
+    watch: `Rejecting a request does not notify the employee automatically — let their supervisor know.`,
+  },
+  '#/employees': {
+    line: `The master list of everyone who has ever worked here — active and separated.`,
+    cols: [
+      { label:'What you do here', items:['Search, filter, and open any employee’s full profile','Track status: Probationary, Regular, On Leave, Separated'] },
+      { label:'Where its numbers come from', items:['Hired applicants converted from the recruitment pipeline','Movements, evaluations, and offboarding entered against each record'] },
+      { label:'What it feeds', items:['Attendance, leave, performance, training, and compensation reports'] },
+    ],
+  },
+  '#/attendance': {
+    line: `Today’s roster — who’s on duty, late, absent, or on leave.`,
+    cols: [
+      { label:'What you do here', items:['Check who’s present right now and by how much they’re late','File or approve a time correction'] },
+      { label:'Where its numbers come from', items:['Each employee’s shift and recorded time in / out'] },
+      { label:'What it feeds', items:['The dashboard’s daily summary'] },
+    ],
+  },
+  '#/performance': {
+    line: `Evaluations for probationary and regular employees.`,
+    cols: [
+      { label:'What you do here', items:['Complete a due evaluation and record the KPI ratings','Decide: regularize, extend probation, or flag for development'] },
+      { label:'Where its numbers come from', items:['KPI scores entered against each employee’s review'] },
+      { label:'What it feeds', items:['Employee status — a Regularize decision moves someone from Probationary to Regular'] },
+    ],
+    watch: `A probationary employee whose review is overdue may exceed the legal probation period — check the due date first.`,
+  },
+};
+function renderGuide(hash){
+  if (!isGuideShown()) return '';
+  const key = Object.keys(GUIDES).find(k => hash === k || hash.startsWith(k + '/'));
+  const g = key && GUIDES[key];
+  if (!g) return '';
+  return `<div class="guide">
+    <div class="guide-off"><button class="guide-x" data-guide-hide>${icon('close',12)} Hide guide</button></div>
+    <div class="guide-line">${g.line}</div>
+    <div class="guide-grid">
+      ${g.cols.map(c => `<div class="guide-col">
+        <div class="label">${esc(c.label)}</div>
+        <ul>${c.items.map(i => `<li>${i}</li>`).join('')}</ul>
+      </div>`).join('')}
+    </div>
+    ${g.chips ? `<div class="guide-chips">${g.chips.map(c => `<button class="guide-chip" data-goto="${c.route}">${esc(c.label)}</button>`).join('')}</div>` : ''}
+    ${g.watch ? `<div class="guide-watch">${icon('alert',14)}<span>${g.watch}</span></div>` : ''}
+  </div>`;
+}
+
 function bindAppChrome(){
   startClock();
   initTheme();
   $('#themeToggle').onclick = toggleTheme;
   $('#menuToggle').innerHTML = icon('menu',17);
   $('#quickBtn').innerHTML = icon('bolt',17);
+  $('#guideBtn').innerHTML = icon('star',16);
+  $('#guideBtn').classList.toggle('on', isGuideShown());
+  $('#guideBtn').onclick = () => { setGuideShown(!isGuideShown()); $('#guideBtn').classList.toggle('on', isGuideShown()); refresh(); };
   renderNotifBadge();
   $('#searchTrigger').querySelector('.ico').outerHTML = icon('search',15,'dim');
 
