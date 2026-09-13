@@ -4071,24 +4071,14 @@ function wireAuthForm(){
   };
 }
 
-/* ---- public applicant portal: no login, and no direct table access at all —
-   only the invitation named in the URL is ever fetched, via a SECURITY
-   DEFINER function that can't be used to list or browse other invitations. */
-async function loadPortalInvitation(){
-  const invId = location.hash.replace('#/apply/','');
-  try{
-    const { data, error } = await sb.rpc('portal_get_invitation', { p_id: invId });
-    if (error) console.error('[Supabase] portal_get_invitation failed', error);
-    AppState.invitations = data ? [data] : [];
-  }catch(e){ console.error('[Supabase] failed to load invitation', e); AppState.invitations = []; }
-}
+/* ---- public applicant portal: no login, narrow anon access to invitations */
 async function bootPortal(){
-  await loadPortalInvitation();
+  try{
+    const rows = await Store.fetchAll('invitations');
+    AppState.invitations = rows.map(r => r.data);
+  }catch(e){ console.error('[Supabase] failed to load invitation', e); }
   $('#bootLoading').classList.add('hidden');
-  window.addEventListener('hashchange', async () => {
-    if (location.hash.startsWith('#/apply/')) await loadPortalInvitation();
-    router();
-  });
+  window.addEventListener('hashchange', router);
   router();
 }
 

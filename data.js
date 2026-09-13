@@ -1356,16 +1356,12 @@ const PERSIST_MAP = {
   _audit: () => { const r = AppState.audit[0]; if (r) Store.upsert('audit_log', r.id, r); },
   _notify: () => { const r = AppState.notifications[0]; if (r) Store.upsert('notifications', r.id, r); },
   createInvitation: r => r && Store.upsert('invitations', r.id, r),
-  // openInvitation/submitApplication only ever run from the public, unauthenticated
-  // portal — go through the narrow portal_* RPC functions (SECURITY DEFINER),
-  // never the raw tables, so the anon key can't read or list invitations directly.
-  openInvitation: (r, args) => { if (r) sb.rpc('portal_open_invitation', { p_id: args[0] }).then(({ error }) => { if (error) console.error('[Supabase] portal_open_invitation failed', error); }); },
+  openInvitation: r => r && Store.upsert('invitations', r.id, r),
   revokeInvitation: (r, args) => { if (!r) return; const inv = invById(args[0]); if (inv) Store.upsert('invitations', inv.id, inv); },
-  submitApplication: (r, args) => {
+  submitApplication: r => {
     if (!r || !r.ok) return;
-    sb.rpc('portal_submit_application', { p_id: args[0], p_applicant: r.application }).then(({ error }) => {
-      if (error) console.error('[Supabase] portal_submit_application failed', error);
-    });
+    Store.upsert('applicants', r.application.id, r.application);
+    const inv = invById(r.application.invitationId); if (inv) Store.upsert('invitations', inv.id, inv);
   },
   setStage: r => r && Store.upsert('applicants', r.id, r),
   saveScreening: r => r && Store.upsert('applicants', r.id, r),
