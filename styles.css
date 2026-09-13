@@ -763,6 +763,23 @@ select.input{
   .guide-off{position:static;justify-content:flex-end;margin-bottom:6px}
 }
 
+/* ---------- Guided tour ---------- */
+.tour{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:140;
+  width:min(480px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line-strong);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-drawer);padding:16px 18px;
+  animation:tourIn 220ms var(--fast);
+}
+@keyframes tourIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.tour-top{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.tour-step{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.01em}
+.tour-title{font-size:15px;font-weight:620;letter-spacing:-.01em;margin-bottom:5px}
+.tour-text{font-size:13px;line-height:1.5;color:var(--ink-2)}
+.tour-foot{display:flex;align-items:center;gap:8px;margin-top:14px}
+.tour-dots{display:flex;gap:4px;margin-right:auto}
+.tour-dot{width:5px;height:5px;border-radius:50%;background:var(--line-strong)}
+.tour-dot.on{background:var(--accent);width:14px;border-radius:99px}
+
 /* ---------- Command palette / global search ---------- */
 .palette{
   position:fixed;left:50%;top:14vh;transform:translateX(-50%) translateY(-6px);width:min(620px,94vw);

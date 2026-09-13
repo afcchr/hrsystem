@@ -3798,6 +3798,11 @@ document.addEventListener('click', e => {
   const guideHide = t.closest('[data-guide-hide]');
   if (guideHide){ setGuideShown(false); $('#guideBtn').classList.remove('on'); refresh(); return; }
 
+  if (t.closest('[data-tour-start]')){ startTour(); return; }
+  if (t.closest('[data-tour-next]')){ tourIdx++; paintTour(); return; }
+  if (t.closest('[data-tour-back]')){ tourIdx--; paintTour(); return; }
+  if (t.closest('[data-tour-end]')){ endTour(); return; }
+
   const closeM = t.closest('[data-close-modal]'); if (closeM){ closeModal(); return; }
   const closeD = t.closest('[data-close-drawer]'); if (closeD){ closeDrawer(); return; }
 
@@ -4154,7 +4159,10 @@ function renderGuide(hash){
   const g = key && GUIDES[key];
   if (!g) return '';
   return `<div class="guide">
-    <div class="guide-off"><button class="guide-x" data-guide-hide>${icon('close',12)} Hide guide</button></div>
+    <div class="guide-off">
+      <button class="guide-x" data-tour-start>Take the tour</button>
+      <button class="guide-x" data-guide-hide>${icon('close',12)} Hide guide</button>
+    </div>
     <div class="guide-line">${g.line}</div>
     <div class="guide-grid">
       ${g.cols.map(c => `<div class="guide-col">
@@ -4164,6 +4172,48 @@ function renderGuide(hash){
     </div>
     ${g.chips ? `<div class="guide-chips">${g.chips.map(c => `<button class="guide-chip" data-goto="${c.route}">${esc(c.label)}</button>`).join('')}</div>` : ''}
     ${g.watch ? `<div class="guide-watch">${icon('alert',14)}<span>${g.watch}</span></div>` : ''}
+  </div>`;
+}
+
+/* ---------- guided tour: walks the whole system, one module at a time ---------- */
+const TOUR = [
+  { view:'#/dashboard', label:'Dashboard', title:'Start with the question, not the data',
+    text:'This is the only screen that tells you what to think. It reads every other module and rolls it up into a handful of numbers. Everything else in this system exists to make this screen worth a glance each morning.' },
+  { view:'#/recruitment/invitations', label:'Invitations', title:'Every hire starts as an invitation',
+    text:'HR generates a one-time link for a specific position and branch. Nothing else in the pipeline exists until an applicant opens it — the invitation is where an applicant record is born.' },
+  { view:'#/recruitment/ats', label:'Applicant tracking', title:'The pipeline, in motion',
+    text:'An applicant moves left to right through screening, interviews, and evaluation. The stage on this board is the single source of truth — nothing downstream trusts a stage it read anywhere else.' },
+  { view:'#/recruitment/preemployment', label:'Pre-employment', title:'The last gate before Hired',
+    text:'Every requirement here has to be checked off before an applicant can be converted to an employee. Skip one and you are hiring on an exception, not a rule.' },
+  { view:'#/employees', label:'Employees', title:'The record everything else attaches to',
+    text:'The moment someone is hired, they get an employee ID — and every attendance log, leave request, and evaluation from here on is filed against that one ID.' },
+  { view:'#/attendance', label:'Attendance', title:'Every working day, logged against that ID',
+    text:'Shift, time in, time out, late minutes — all read from the same roster this screen shows for today. This is what the dashboard’s attendance summary is built from.' },
+  { view:'#/leave', label:'Leave', title:'Time away, tracked the same way',
+    text:'A leave request is filed against an employee ID and, once approved, changes what attendance shows for those dates automatically — no separate step required.' },
+  { view:'#/performance', label:'Performance', title:'The decision that changes someone’s status',
+    text:'A completed evaluation can move a probationary employee to Regular. Nothing else in the system can do that — this is the one screen with the authority to change someone’s employment status.' },
+];
+let tourIdx = 0;
+function startTour(){ tourIdx = 0; setGuideShown(true); paintTour(); }
+function endTour(){ $('#layers').innerHTML = ''; }
+function paintTour(){
+  const t = TOUR[tourIdx];
+  if (!t){ endTour(); toast('That’s the whole system, end to end'); return; }
+  go(t.view);
+  $('#layers').innerHTML = `<div class="tour" role="dialog" aria-label="Guided tour">
+    <div class="tour-top">
+      <span class="tour-step">Step ${tourIdx + 1} of ${TOUR.length}</span>
+      <span class="badge plain" style="margin-left:auto">${esc(t.label)}</span>
+    </div>
+    <div class="tour-title">${esc(t.title)}</div>
+    <div class="tour-text">${esc(t.text)}</div>
+    <div class="tour-foot">
+      <div class="tour-dots">${TOUR.map((_, i) => `<i class="tour-dot ${i === tourIdx ? 'on' : ''}"></i>`).join('')}</div>
+      <button class="btn sm" data-tour-end>Close</button>
+      ${tourIdx > 0 ? `<button class="btn sm" data-tour-back>Back</button>` : ''}
+      <button class="btn sm primary" data-tour-next>${tourIdx === TOUR.length - 1 ? 'Finish' : 'Next'}</button>
+    </div>
   </div>`;
 }
 
