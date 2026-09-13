@@ -664,7 +664,10 @@ function viewDashboard(){
 
   return `<div class="page-head">
       <div style="min-width:0">
-        <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon" aria-hidden="true">${greetingEmoji()}</span></h1>
+        <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon-wrap">
+          <span class="greet-moon" id="greetMoon" role="button" tabindex="0" title="Click me">${greetingEmoji()}</span>
+          <span class="moon-cloud" id="moonCloud"><span id="moonCloudText"></span><span class="moon-cloud-tail"></span></span>
+        </span></h1>
       </div>
       <div class="page-actions">
         <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
@@ -3696,7 +3699,25 @@ function router(){
 }
 function refresh(){ router(); }
 
+function initMoonCloud(){
+  const moon = $('#greetMoon'), cloud = $('#moonCloud'), text = $('#moonCloudText');
+  if (!moon || !cloud || !text) return;
+  let t1 = null, t2 = null;
+  const show = () => {
+    clearTimeout(t1); clearTimeout(t2);
+    const first = ((AppState.currentUser && AppState.currentUser.name) || '').trim().split(' ')[0] || 'there';
+    text.textContent = `Hi ${first}`;
+    cloud.classList.add('show');
+    t1 = setTimeout(() => {
+      text.textContent = 'Remember you are beautiful and wonderfully made';
+      t2 = setTimeout(() => cloud.classList.remove('show'), 5000);
+    }, 2000);
+  };
+  moon.onclick = show;
+  moon.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); show(); } };
+}
 function bindViewControls(){
+  initMoonCloud();
   const attDate = $('#attDate');
   if (attDate) attDate.onchange = e => { attendanceDate = e.target.value; refresh(); };
   const shiftDept = $('#shiftDept');
