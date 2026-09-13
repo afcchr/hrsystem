@@ -662,9 +662,15 @@ function viewDashboard(){
         </div>`).join('')}</div>`)}
   </div>`;
 
-  return page(dashboardGreeting(), '', `
-    <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
-    <button class="btn primary" data-goto="#/recruitment/ats">${icon('users',15)} Applicant tracking</button>`, body);
+  return `<div class="page-head">
+      <div style="min-width:0">
+        <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon" aria-hidden="true">🌛</span></h1>
+      </div>
+      <div class="page-actions">
+        <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
+        <button class="btn primary" data-goto="#/recruitment/ats">${icon('users',15)} Applicant tracking</button>
+      </div>
+    </div>${body}`;
 }
 function dashboardGreeting(){
   const h = new Date().getHours();

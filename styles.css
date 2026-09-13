@@ -260,6 +260,15 @@ svg{display:block}
 .content{flex:1 1 auto;padding:20px 22px 56px;max-width:1560px;width:100%}
 .page-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap}
 .page-title{font-size:22px;font-weight:660;letter-spacing:-.03em;line-height:1.2}
+.greet-moon{
+  display:inline-block;font-size:19px;transform-origin:50% 65%;
+  animation:greetMoonBob 2.6s ease-in-out infinite;
+}
+@keyframes greetMoonBob{
+  0%,100%{transform:rotate(-8deg) translateY(0)}
+  50%{transform:rotate(8deg) translateY(-3px)}
+}
+@media (prefers-reduced-motion:reduce){.greet-moon{animation:none}}
 .page-sub{font-size:13px;color:var(--ink-2);margin-top:3px;max-width:74ch}
 .page-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 
