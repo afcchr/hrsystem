@@ -438,7 +438,7 @@ const NAV = [
   ]},
 ];
 
-const openGroups = new Set(['Recruitment']);
+const openGroups = new Set();
 function renderNav(){
   const cur = location.hash || '#/dashboard';
   const nav = $('#nav');
