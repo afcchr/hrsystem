@@ -17,17 +17,34 @@ const pick = arr => arr[Math.floor(rnd() * arr.length)];
 const rint = (a,b) => a + Math.floor(rnd() * (b - a + 1));
 
 const DEPARTMENTS = [
-  { code:'PRD', name:'Production',     authorized:128, head:'Rolando Ocampo',   icon:'layers' },
-  { code:'PRC', name:'Processing',     authorized:70,  head:'Liezl Domingo',    icon:'layers' },
-  { code:'WHS', name:'Warehouse',      authorized:41,  head:'Arnel Salazar',    icon:'inbox' },
-  { code:'LOG', name:'Logistics',      authorized:23,  head:'Noel Pascual',     icon:'truck' },
-  { code:'DLV', name:'Delivery',       authorized:42,  head:'Edwin Manalo',     icon:'truck' },
-  { code:'SLS', name:'Sales',          authorized:31,  head:'Grace Villanueva', icon:'chart' },
-  { code:'PUR', name:'Purchasing',     authorized:10,  head:'Rhea Castillo',    icon:'briefcase' },
-  { code:'FIN', name:'Finance',        authorized:14,  head:'Cristina Aquino',  icon:'wallet' },
-  { code:'HRD', name:'Human Resources',authorized:10,  head:'Maria Reyes',      icon:'users' },
-  { code:'ADM', name:'Administration', authorized:13,  head:'Jocelyn Navarro',  icon:'building' },
-  { code:'MGT', name:'Management',     authorized:9,   head:'Vicente Yatco',    icon:'shield' },
+  { code:'BRL', name:'Broiler',                      authorized:0, head:'', icon:'layers' },
+  { code:'DIS', name:'Distribution',                 authorized:0, head:'', icon:'truck' },
+  { code:'DOC', name:'Documentation & Compliance',   authorized:0, head:'', icon:'file' },
+  { code:'DRP', name:'Dressing Plant',                authorized:0, head:'', icon:'layers' },
+  { code:'EXE', name:'Executive Dept',                authorized:0, head:'', icon:'shield' },
+  { code:'FRM', name:'Farms',                         authorized:0, head:'', icon:'layers' },
+  { code:'FIN', name:'Finance',                       authorized:0, head:'', icon:'wallet' },
+  { code:'FUR', name:'Further',                       authorized:0, head:'', icon:'building' },
+  { code:'GAD', name:'General & Admin',                authorized:0, head:'', icon:'building' },
+  { code:'HRA', name:'Hr Admin',                       authorized:0, head:'', icon:'users' },
+  { code:'ITD', name:'It',                             authorized:0, head:'', icon:'settings' },
+  { code:'LOG', name:'Logistics',                      authorized:0, head:'', icon:'truck' },
+  { code:'MGT', name:'Manager/Head',                   authorized:0, head:'', icon:'shield' },
+  { code:'MEC', name:'Mechanic',                       authorized:0, head:'', icon:'settings' },
+  { code:'MTR', name:'Modern Trade',                   authorized:0, head:'', icon:'chart' },
+  { code:'PNF', name:'P&F',                            authorized:0, head:'', icon:'briefcase' },
+  { code:'PLN', name:'Planning',                       authorized:0, head:'', icon:'chart' },
+  { code:'PCM', name:'Procurement',                    authorized:0, head:'', icon:'briefcase' },
+  { code:'QAS', name:'Qa',                             authorized:0, head:'', icon:'checkcircle' },
+  { code:'QCS', name:'Qc',                             authorized:0, head:'', icon:'checkcircle' },
+  { code:'RST', name:'Restaurant',                     authorized:0, head:'', icon:'building' },
+  { code:'RND', name:'Research & Devt',                 authorized:0, head:'', icon:'book' },
+  { code:'SLS', name:'Sales',                          authorized:0, head:'', icon:'chart' },
+  { code:'SAN', name:'Sanitation',                     authorized:0, head:'', icon:'inbox' },
+  { code:'SEC', name:'Security',                       authorized:0, head:'', icon:'lock' },
+  { code:'SWN', name:'Swine',                          authorized:0, head:'', icon:'layers' },
+  { code:'TRN', name:'Transport',                      authorized:0, head:'', icon:'truck' },
+  { code:'WHS', name:'Warehouse',                      authorized:0, head:'', icon:'inbox' },
 ];
 const deptName = code => (DEPARTMENTS.find(d => d.code === code) || {}).name || code;
 
@@ -1131,14 +1148,14 @@ const MockAPI = {
     const id = `EMP-2026-${String(AppState.seq.emp++).padStart(5,'0')}`;
     const first = data.first.trim(), last = data.last.trim(), middle = (data.middle || '').trim();
     const name = `${first} ${last}`.trim();
-    const p = posByTitle(data.position);
+    const level = data.level || 'Rank & File';
     const isSeparated = data.status === 'Separated' || data.status === 'Retired';
     const emp = {
       id, name, first, middle, last, suffix:data.suffix || '',
       sex:data.sex, civil:data.civil, nationality:data.nationality || 'Filipino', birth:data.birth || null,
-      position:data.position, dept:p.dept, branch:data.branch,
+      position:data.position, dept:data.dept, branch:data.branch,
       type:data.type, hired:data.hired, status:data.status,
-      supervisor:data.supervisor || null, level:p.level,
+      supervisor:data.supervisor || null, level,
       email:data.email || `${first.toLowerCase()}.${last.toLowerCase().replace(/\s/g,'')}@artfreshchicken.ph`,
       mobile:data.mobile || '', address:data.address || '',
       emergency:{ name:data.emgName || '', rel:data.emgRel || '', phone:data.emgPhone || '' },
@@ -1146,8 +1163,8 @@ const MockAPI = {
       salary:Number(data.salary) || 0,
       allowances:[
         { name:'Meal allowance', amount:2000 },
-        { name:'Transportation', amount:['DLV','LOG'].includes(p.dept) ? 2500 : 1500 },
-        ...(p.level !== 'Rank & File' ? [{ name:'Communication', amount:1200 }] : []),
+        { name:'Transportation', amount:['LOG','DIS','TRN'].includes(data.dept) ? 2500 : 1500 },
+        ...(level !== 'Rank & File' ? [{ name:'Communication', amount:1200 }] : []),
       ],
       shift:data.shift || 'OFC', restDay:data.restDay || 'Sunday',
       probationEnd:data.status === 'Probationary' ? (data.probationEnd || d2s(addDays(s2d(data.hired), 180))) : null,

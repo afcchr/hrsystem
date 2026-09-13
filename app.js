@@ -2657,7 +2657,7 @@ function viewAttendance(){
 
 function viewShifts(){
   const days = Array.from({ length:7 }, (_,i) => addDays(TODAY, i));
-  const dept = AppState.filters.shiftDept || 'PRD';
+  const dept = AppState.filters.shiftDept || DEPARTMENTS[0].code;
   const list = activeEmployees().filter(e => e.dept === dept).slice(0, 18);
   const shiftOf = (e, d) => AppState.shiftOverrides[e.id + d2s(d)] || (DOW[d.getDay()] === e.restDay.slice(0,3) ? 'RST' : e.shift);
   const coverage = SHIFTS.filter(s => s.code !== 'RST').map(s => ({
@@ -3604,8 +3604,11 @@ function formAddEmployee(){
 
       <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 8px">Employment</div>
       <div class="fgrid fg2">
-        <label class="field span2"><span class="flabel">Position *</span>
-          <select class="input" id="aePosition">${POSITIONS.map(p => `<option value="${esc(p.title)}">${esc(p.title)} — ${esc(deptName(p.dept))}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Department *</span>
+          <select class="input" id="aeDept">${DEPARTMENTS.map(d => `<option value="${esc(d.code)}">${esc(d.name)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Position *</span><input class="input" id="aePosition" placeholder="Exact job title"></label>
+        <label class="field"><span class="flabel">Level</span>
+          <select class="input" id="aeLevel"><option>Rank &amp; File</option><option>Supervisory</option><option>Managerial</option></select></label>
         <label class="field"><span class="flabel">Branch *</span>
           <select class="input" id="aeBranch">${BRANCHES.map(b => `<option value="${esc(b.code)}">${esc(b.name)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Employment type</span>
@@ -3664,16 +3667,16 @@ function formAddEmployee(){
 
   $('#aeSave').onclick = () => {
     const first = $('#aeFirst').value.trim(), last = $('#aeLast').value.trim();
-    const position = $('#aePosition').value, hired = $('#aeHired').value, status = $('#aeStatus').value;
-    if (!first || !last || !hired){
-      $('#aeErr').textContent = 'First name, last name, and date hired are required.';
+    const position = $('#aePosition').value.trim(), hired = $('#aeHired').value, status = $('#aeStatus').value;
+    if (!first || !last || !position || !hired){
+      $('#aeErr').textContent = 'First name, last name, position, and date hired are required.';
       $('#aeErr').style.display = 'block';
       return;
     }
     const res = MockAPI.createEmployee({
       first, last, middle:$('#aeMiddle').value.trim(), suffix:$('#aeSuffix').value.trim(),
       sex:$('#aeSex').value, civil:$('#aeCivil').value, birth:$('#aeBirth').value, nationality:$('#aeNat').value.trim(),
-      position, branch:$('#aeBranch').value, type:$('#aeType').value, status, hired,
+      position, dept:$('#aeDept').value, level:$('#aeLevel').value, branch:$('#aeBranch').value, type:$('#aeType').value, status, hired,
       supervisor:$('#aeSupervisor').value.trim(), shift:$('#aeShift').value,
       probationEnd:$('#aeProbationEnd').value, sepType:$('#aeSepType').value, sepDate:$('#aeSepDate').value,
       salary:$('#aeSalary').value, mobile:$('#aeMobile').value.trim(), email:$('#aeEmail').value.trim(), address:$('#aeAddress').value.trim(),
