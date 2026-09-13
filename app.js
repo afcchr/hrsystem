@@ -664,7 +664,7 @@ function viewDashboard(){
 
   return `<div class="page-head">
       <div style="min-width:0">
-        <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon" aria-hidden="true">🌛</span></h1>
+        <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon" aria-hidden="true">${greetingEmoji()}</span></h1>
       </div>
       <div class="page-actions">
         <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
@@ -676,7 +676,11 @@ function dashboardGreeting(){
   const h = new Date().getHours();
   const part = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
   const first = ((AppState.currentUser && AppState.currentUser.name) || '').trim().split(' ')[0] || 'there';
-  return `Good ${part}, ${first}`;
+  return `HAPI ${part}, ${first}`;
+}
+function greetingEmoji(){
+  const h = new Date().getHours();
+  return h < 18 ? '🌞' : '🌛';
 }
 
 /* ---------------------------------------------------------------------------
