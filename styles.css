@@ -78,6 +78,8 @@ svg{display:block}
    ============================================================ */
 #app{display:flex;min-height:100vh}
 
+.top-accent-bar{position:fixed;top:0;left:0;right:0;height:4px;z-index:100;background:var(--ink)}
+
 /* ---------- Sidebar ---------- */
 .sidebar{
   width:var(--sidebar-w);flex:0 0 var(--sidebar-w);
