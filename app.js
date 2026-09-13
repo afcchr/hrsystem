@@ -3616,8 +3616,6 @@ function formAddEmployee(){
         <label class="field"><span class="flabel">Supervisor</span><input class="input" id="aeSupervisor" placeholder="Name of immediate supervisor"></label>
         <label class="field"><span class="flabel">Shift</span>
           <select class="input" id="aeShift">${SHIFTS.filter(s => s.code !== 'RST').map(s => `<option value="${s.code}">${esc(s.name)}</option>`).join('')}</select></label>
-        <label class="field"><span class="flabel">Rest day</span>
-          <select class="input" id="aeRestDay">${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(d => `<option ${d==='Sunday'?'selected':''}>${d}</option>`).join('')}</select></label>
       </div>
       <div class="fgrid fg2" id="aeProbationRow" style="margin-top:12px">
         <label class="field"><span class="flabel">Probation ends</span><input class="input" type="date" id="aeProbationEnd"></label>
@@ -3676,7 +3674,7 @@ function formAddEmployee(){
       first, last, middle:$('#aeMiddle').value.trim(), suffix:$('#aeSuffix').value.trim(),
       sex:$('#aeSex').value, civil:$('#aeCivil').value, birth:$('#aeBirth').value, nationality:$('#aeNat').value.trim(),
       position, branch:$('#aeBranch').value, type:$('#aeType').value, status, hired,
-      supervisor:$('#aeSupervisor').value.trim(), shift:$('#aeShift').value, restDay:$('#aeRestDay').value,
+      supervisor:$('#aeSupervisor').value.trim(), shift:$('#aeShift').value,
       probationEnd:$('#aeProbationEnd').value, sepType:$('#aeSepType').value, sepDate:$('#aeSepDate').value,
       salary:$('#aeSalary').value, mobile:$('#aeMobile').value.trim(), email:$('#aeEmail').value.trim(), address:$('#aeAddress').value.trim(),
       emgName:$('#aeEmgName').value.trim(), emgRel:$('#aeEmgRel').value.trim(), emgPhone:$('#aeEmgPhone').value.trim(),
