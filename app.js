@@ -122,10 +122,16 @@ function openPop(anchor, html, width){
   const p = $('#pop');
   p.style.width = (width || 300) + 'px';
   p.innerHTML = html;
+  p.style.top = ''; p.style.bottom = '';
   p.classList.add('show');
   const r = anchor.getBoundingClientRect();
   const w = width || 300;
-  p.style.top = (r.bottom + 6) + 'px';
+  const spaceBelow = window.innerHeight - r.bottom - 10;
+  if (p.offsetHeight > spaceBelow && r.top > p.offsetHeight){
+    p.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+  } else {
+    p.style.top = (r.bottom + 6) + 'px';
+  }
   p.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
   setTimeout(() => document.addEventListener('click', closePopOnce, { once:true }), 0);
 }
@@ -4015,8 +4021,28 @@ function startClock(){
   _clockTimer = setInterval(tickClock, 1000);
 }
 
+/* ---- dark / light appearance toggle ---- */
+const THEME_KEY = 'hrms-theme';
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = $('#themeToggle');
+  if (btn) btn.innerHTML = icon(theme === 'dark' ? 'sun' : 'moon', 15);
+  try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+}
+function initTheme(){
+  let theme = 'light';
+  try{ theme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }catch(e){}
+  applyTheme(theme);
+}
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
 function bindAppChrome(){
   startClock();
+  initTheme();
+  $('#themeToggle').onclick = toggleTheme;
   $('#menuToggle').innerHTML = icon('layers',17);
   $('#quickBtn').innerHTML = icon('bolt',17);
   renderNotifBadge();
@@ -4101,6 +4127,7 @@ async function bootPortal(){
 let _booted = false;
 async function boot(){
   if (_booted) return; _booted = true;
+  initTheme();
 
   if (location.hash.startsWith('#/apply/')){
     await bootPortal();

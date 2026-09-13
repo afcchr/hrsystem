@@ -48,10 +48,11 @@
     </div>
     <nav class="nav" id="nav" aria-label="Main"></nav>
     <div class="sidebar-foot">
-      <div class="env-pill">
-        <span class="dot pulse"></span>
-        <span>Connected · Supabase</span>
-      </div>
+      <button class="icon-btn bordered theme-toggle" id="themeToggle" title="Switch appearance" aria-label="Switch appearance"></button>
+      <button class="user-chip" id="userBtn">
+        <span class="avatar" style="background:#3f5a4c">MR</span>
+        <span class="user-meta"><b>Maria Reyes</b><span id="roleLabel">HR Manager</span></span>
+      </button>
     </div>
   </aside>
 
@@ -72,10 +73,6 @@
       </button>
       <button class="icon-btn" id="quickBtn" title="Quick actions" aria-label="Quick actions"></button>
       <button class="icon-btn" id="notifBtn" title="Notifications" aria-label="Notifications"></button>
-      <button class="user-chip" id="userBtn">
-        <span class="avatar" style="background:#3f5a4c">MR</span>
-        <span class="user-meta"><b>Maria Reyes</b><span id="roleLabel">HR Manager</span></span>
-      </button>
     </header>
     <main class="content" id="view"></main>
   </div>
