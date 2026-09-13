@@ -3702,16 +3702,17 @@ function refresh(){ router(); }
 function initMoonCloud(){
   const moon = $('#greetMoon'), cloud = $('#moonCloud'), text = $('#moonCloudText');
   if (!moon || !cloud || !text) return;
-  let t1 = null, t2 = null;
+  let timers = [];
   const show = () => {
-    clearTimeout(t1); clearTimeout(t2);
+    timers.forEach(clearTimeout); timers = [];
     const first = ((AppState.currentUser && AppState.currentUser.name) || '').trim().split(' ')[0] || 'there';
-    text.textContent = `Hi ${first}`;
+    const steps = [`Hi ${first}`, 'Remember you are beautiful', 'and wonderfully made', '🌸 🌷 🌼'];
+    text.textContent = steps[0];
     cloud.classList.add('show');
-    t1 = setTimeout(() => {
-      text.textContent = 'Remember you are beautiful and wonderfully made';
-      t2 = setTimeout(() => cloud.classList.remove('show'), 5000);
-    }, 2000);
+    steps.slice(1).forEach((msg, i) => {
+      timers.push(setTimeout(() => { text.textContent = msg; }, (i + 1) * 2000));
+    });
+    timers.push(setTimeout(() => cloud.classList.remove('show'), steps.length * 2000 + 2500));
   };
   moon.onclick = show;
   moon.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); show(); } };
