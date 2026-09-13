@@ -4276,8 +4276,6 @@ function bindAppChrome(){
   renderNotifBadge();
   $('#searchTrigger').querySelector('.ico').outerHTML = icon('search',15,'dim');
 
-  // sidebar starts open every time the system loads — no click needed first
-  if (window.innerWidth <= 900) $('#sidebar').classList.add('open');
   $('#menuToggle').onclick = () => $('#sidebar').classList.toggle(window.innerWidth > 900 ? 'collapsed' : 'open');
   $('#searchTrigger').onclick = openPalette;
   $('#notifBtn').onclick = e => { e.stopPropagation(); openNotifications(); };
