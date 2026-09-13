@@ -310,19 +310,24 @@ const TERMINAL = ['Rejected','Withdrawn','On Hold'];
 const STAGE_ORDER = s => STAGES.indexOf(s);
 
 const STATUS_STYLE = {
-  'Invited':'plain','Started':'info','Submitted':'info','Screening':'info','Shortlisted':'accent',
-  'Interview':'accent','Assessment':'accent','Final Evaluation':'accent','Selected':'ok','Job Offer':'ok',
-  'Pre-Employment':'warn','Hired':'ok','Rejected':'bad','Withdrawn':'','On Hold':'warn',
-  'Regular':'ok','Probationary':'info','Project-Based':'plain','Contractual':'plain','On Leave':'warn',
-  'Suspended':'bad','Separated':'','Retired':'',
-  'Present':'ok','Late':'warn','Absent':'bad','Undertime':'warn','Overtime':'info','Rest Day':'plain','Not Started':'plain',
-  'Approved':'ok','Pending':'warn','Rejected ':'bad','Cancelled':'','For Approval':'warn',
-  'Open':'warn','Under Investigation':'info','Resolved':'ok','Closed':'',
-  'Unused':'info','Opened':'warn','Expired':'','Revoked':'bad','Used':'ok',
-  'Draft':'plain','Pending Approval':'warn','Sent':'info','Accepted':'ok','Declined':'bad',
+  // Recruitment pipeline — Blue: general/informational stage · Cyan: secondary
+  // stage · Amber: needs attention/waiting · Green: positive outcome · Red: negative
+  'Invited':'neutral','Started':'info','Submitted':'info','Screening':'info','Shortlisted':'cyan',
+  'Interview':'warn','Assessment':'warn','Final Evaluation':'info','Selected':'ok','Job Offer':'ok',
+  'Pre-Employment':'cyan','Hired':'ok','Rejected':'bad','Withdrawn':'neutral','On Hold':'warn',
+  // Employee status
+  'Regular':'ok','Probationary':'info','Project-Based':'neutral','Contractual':'neutral','On Leave':'info',
+  'Suspended':'warn','Separated':'neutral','Retired':'neutral',
+  // Attendance
+  'Present':'ok','Late':'warn','Absent':'bad','Undertime':'warn','Overtime':'info','Rest Day':'neutral','Not Started':'neutral',
+  // Approval / workflow
+  'Approved':'ok','Pending':'warn','Rejected ':'bad','Cancelled':'neutral','For Approval':'warn',
+  'Open':'warn','Under Investigation':'info','Resolved':'ok','Closed':'neutral',
+  'Unused':'info','Opened':'warn','Expired':'neutral','Revoked':'bad','Used':'ok',
+  'Draft':'neutral','Pending Approval':'warn','Sent':'info','Accepted':'ok','Declined':'bad',
   'Valid':'ok','Expiring Soon':'warn','Missing':'bad','Verified':'ok','Complete':'ok',
   'Pass':'ok','Fail':'bad','Hold':'warn','Passed':'ok','Failed':'bad',
-  'Completed':'ok','Scheduled':'info','In Progress':'info','Not Started':'plain',
+  'Completed':'ok','Scheduled':'info','In Progress':'info',
 };
 function badge(text, extraCls){
   const cls = STATUS_STYLE[text] !== undefined ? STATUS_STYLE[text] : 'plain';

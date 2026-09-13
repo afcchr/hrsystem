@@ -673,8 +673,8 @@ function viewDashboard(){
   <div class="grid g2" style="margin-top:14px">
     ${card('Hiring and exits','Rolling 7 months','', `
       <div class="row" style="gap:14px;margin-bottom:6px">
-        <span class="chip"><span class="dot" style="background:var(--accent)"></span>New hires</span>
-        <span class="chip"><span class="dot" style="background:#b0b6b2"></span>Separations</span>
+        <span class="chip"><span class="dot" style="background:var(--info)"></span>New hires</span>
+        <span class="chip"><span class="dot" style="background:var(--bad)"></span>Separations</span>
       </div>
       ${lineChart([{ values:hiresTrend },{ values:exitsTrend }], monthLabels, { h:180 })}`)}
     ${card('Recent activity','Latest actions across HR', `<button class="btn sm" data-goto="#/admin/audit">Audit trail</button>`,
@@ -3217,8 +3217,8 @@ function reportContent(){
         lineChart([{ values:recentMonths(7).map(m => headcountAsOf(m.end)) }], recentMonths(7).map(m => m.label), { h:190, zero:false }))}</div>
       <div style="margin-top:14px">${card('Hires and separations','By month','', `
         <div class="row" style="gap:14px;margin-bottom:6px">
-          <span class="chip"><span class="dot" style="background:var(--accent)"></span>New hires</span>
-          <span class="chip"><span class="dot" style="background:#b0b6b2"></span>Separations</span>
+          <span class="chip"><span class="dot" style="background:var(--info)"></span>New hires</span>
+          <span class="chip"><span class="dot" style="background:var(--bad)"></span>Separations</span>
         </div>
         ${lineChart([
           { values:recentMonths(7).map(m => hiresIn(m.key)) },
