@@ -1125,6 +1125,40 @@ const MockAPI = {
     this._notify('ok', `${a.name} is now employee ${id}. Onboarding started.`, `#/employees/${id}`);
     return { ok:true, employee:emp };
   },
+  /** Enter someone directly into the employee master — for staff already on
+   *  the roster (any status), not going through the recruitment pipeline. */
+  createEmployee(data){
+    const id = `EMP-2026-${String(AppState.seq.emp++).padStart(5,'0')}`;
+    const first = data.first.trim(), last = data.last.trim(), middle = (data.middle || '').trim();
+    const name = `${first} ${last}`.trim();
+    const p = posByTitle(data.position);
+    const isSeparated = data.status === 'Separated' || data.status === 'Retired';
+    const emp = {
+      id, name, first, middle, last, suffix:data.suffix || '',
+      sex:data.sex, civil:data.civil, nationality:data.nationality || 'Filipino', birth:data.birth || null,
+      position:data.position, dept:p.dept, branch:data.branch,
+      type:data.type, hired:data.hired, status:data.status,
+      supervisor:data.supervisor || null, level:p.level,
+      email:data.email || `${first.toLowerCase()}.${last.toLowerCase().replace(/\s/g,'')}@artfreshchicken.ph`,
+      mobile:data.mobile || '', address:data.address || '',
+      emergency:{ name:data.emgName || '', rel:data.emgRel || '', phone:data.emgPhone || '' },
+      education:{ attainment:data.attainment || '', school:data.school || '', course:data.course || '', year:data.gradYear || '' },
+      salary:Number(data.salary) || 0,
+      allowances:[
+        { name:'Meal allowance', amount:2000 },
+        { name:'Transportation', amount:['DLV','LOG'].includes(p.dept) ? 2500 : 1500 },
+        ...(p.level !== 'Rank & File' ? [{ name:'Communication', amount:1200 }] : []),
+      ],
+      shift:data.shift || 'OFC', restDay:data.restDay || 'Sunday',
+      probationEnd:data.status === 'Probationary' ? (data.probationEnd || d2s(addDays(s2d(data.hired), 180))) : null,
+      separatedOn:isSeparated ? (data.sepDate || null) : null,
+      separationType:isSeparated ? (data.sepType || null) : null,
+      fromApplication:null, avatar:avatarColor(name + id), isNew:true,
+    };
+    AppState.employees.unshift(emp);
+    this._audit('Employees','Employee Added Manually', id, `${name} · ${data.position} · ${data.status}`);
+    return { ok:true, employee:emp };
+  },
 
   /* --- employee lifecycle --- */
   advanceOnboarding(onbId, toIdx){
@@ -1383,6 +1417,7 @@ const PERSIST_MAP = {
     const a = appById(args[0]); if (a) Store.upsert('applicants', a.id, a);
     const onb = AppState.onboarding[0]; if (onb) Store.upsert('onboarding', onb.id, onb);
   },
+  createEmployee: r => { if (r && r.ok) Store.upsert('employees', r.employee.id, r.employee); },
   advanceOnboarding: r => r && Store.upsert('onboarding', r.id, r),
   setLeaveStatus: r => r && Store.upsert('leave_requests', r.id, r),
   fileLeave: r => r && Store.upsert('leave_requests', r.id, r),

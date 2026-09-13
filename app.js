@@ -2205,8 +2205,9 @@ function viewEmployees(){
       { label:'Separated', value:AppState.employees.filter(e => e.status === 'Separated').length, note:'this year' },
     ])}
     <div style="margin-top:14px">${t.html()}</div>`;
-  return page('Employee master', 'Only applicants who were officially hired appear here.', `
+  return page('Employee master', 'People hired through the pipeline appear here automatically — add anyone else directly.', `
     <button class="btn" data-action="export">${icon('download',15)} Export</button>
+    <button class="btn" data-action="add-employee">${icon('userplus',15)} Add employee</button>
     <button class="btn primary" data-goto="#/recruitment/preemployment">${icon('userplus',15)} Hire from pipeline</button>`, body);
 }
 
@@ -3581,6 +3582,112 @@ function formCase(){
   };
 }
 
+function formAddEmployee(){
+  const separationTypes = ['Resignation','End of Contract','Termination','Retirement','Redundancy'];
+  openModal(`
+    <div class="modal-head"><div style="flex:1 1 auto">
+      <div class="card-title">Add employee</div><div class="card-sub">Enter a record directly — for staff already on the roster, not going through recruitment.</div></div>
+      <button class="icon-btn" data-close-modal>${icon('close',16)}</button></div>
+    <div class="modal-body">
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px">Personal</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">First name *</span><input class="input" id="aeFirst" placeholder="Juan"></label>
+        <label class="field"><span class="flabel">Last name *</span><input class="input" id="aeLast" placeholder="Dela Cruz"></label>
+        <label class="field"><span class="flabel">Middle name</span><input class="input" id="aeMiddle"></label>
+        <label class="field"><span class="flabel">Suffix</span><input class="input" id="aeSuffix" placeholder="Jr., III, etc."></label>
+        <label class="field"><span class="flabel">Sex</span><select class="input" id="aeSex"><option>Male</option><option>Female</option></select></label>
+        <label class="field"><span class="flabel">Civil status</span>
+          <select class="input" id="aeCivil"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
+        <label class="field"><span class="flabel">Birth date</span><input class="input" type="date" id="aeBirth"></label>
+        <label class="field"><span class="flabel">Nationality</span><input class="input" id="aeNat" value="Filipino"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 8px">Employment</div>
+      <div class="fgrid fg2">
+        <label class="field span2"><span class="flabel">Position *</span>
+          <select class="input" id="aePosition">${POSITIONS.map(p => `<option value="${esc(p.title)}">${esc(p.title)} — ${esc(deptName(p.dept))}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Branch *</span>
+          <select class="input" id="aeBranch">${BRANCHES.map(b => `<option value="${esc(b.code)}">${esc(b.name)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Employment type</span>
+          <select class="input" id="aeType">${EMPLOYMENT_TYPES.map(t => `<option>${esc(t)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Status *</span>
+          <select class="input" id="aeStatus">${EMPLOYMENT_STATUSES.map(s => `<option>${esc(s)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Date hired *</span><input class="input" type="date" id="aeHired" value="${d2s(TODAY)}"></label>
+        <label class="field"><span class="flabel">Supervisor</span><input class="input" id="aeSupervisor" placeholder="Name of immediate supervisor"></label>
+        <label class="field"><span class="flabel">Shift</span>
+          <select class="input" id="aeShift">${SHIFTS.filter(s => s.code !== 'RST').map(s => `<option value="${s.code}">${esc(s.name)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Rest day</span>
+          <select class="input" id="aeRestDay">${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map(d => `<option ${d==='Sunday'?'selected':''}>${d}</option>`).join('')}</select></label>
+      </div>
+      <div class="fgrid fg2" id="aeProbationRow" style="margin-top:12px">
+        <label class="field"><span class="flabel">Probation ends</span><input class="input" type="date" id="aeProbationEnd"></label>
+      </div>
+      <div class="fgrid fg2" id="aeSeparationRow" style="margin-top:12px">
+        <label class="field"><span class="flabel">Separation type</span>
+          <select class="input" id="aeSepType">${separationTypes.map(t => `<option>${t}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Last working day</span><input class="input" type="date" id="aeSepDate"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 8px">Compensation</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Basic monthly salary</span><input class="input" type="number" id="aeSalary" placeholder="0"></label>
+        <label class="field"><span class="flabel">Mobile number</span><input class="input" id="aeMobile" placeholder="0917 000 0000"></label>
+        <label class="field span2"><span class="flabel">Email (leave blank to auto-generate)</span><input class="input" type="email" id="aeEmail" placeholder="firstname.lastname@artfreshchicken.ph"></label>
+        <label class="field span2"><span class="flabel">Address</span><input class="input" id="aeAddress"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 8px">Emergency contact</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Name</span><input class="input" id="aeEmgName"></label>
+        <label class="field"><span class="flabel">Relationship</span><input class="input" id="aeEmgRel" placeholder="Spouse, Parent, Sibling"></label>
+        <label class="field span2"><span class="flabel">Phone</span><input class="input" id="aeEmgPhone"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:16px 0 8px">Education</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Highest attainment</span>
+          <select class="input" id="aeAttainment"><option value="">—</option>${ATTAINMENT.map(a => `<option>${esc(a)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">School</span><input class="input" id="aeSchool"></label>
+        <label class="field"><span class="flabel">Course / Strand</span><input class="input" id="aeCourse"></label>
+        <label class="field"><span class="flabel">Year graduated</span><input class="input" id="aeGradYear" placeholder="2020"></label>
+      </div>
+      <div id="aeErr" class="errmsg" style="display:none;margin-top:10px"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close-modal>Cancel</button>
+      <button class="btn primary" id="aeSave">Add employee</button></div>`, { lg:true });
+
+  const toggleConditional = () => {
+    const status = $('#aeStatus').value;
+    $('#aeProbationRow').style.display = status === 'Probationary' ? '' : 'none';
+    $('#aeSeparationRow').style.display = (status === 'Separated' || status === 'Retired') ? '' : 'none';
+  };
+  $('#aeStatus').onchange = toggleConditional;
+  toggleConditional();
+
+  $('#aeSave').onclick = () => {
+    const first = $('#aeFirst').value.trim(), last = $('#aeLast').value.trim();
+    const position = $('#aePosition').value, hired = $('#aeHired').value, status = $('#aeStatus').value;
+    if (!first || !last || !hired){
+      $('#aeErr').textContent = 'First name, last name, and date hired are required.';
+      $('#aeErr').style.display = 'block';
+      return;
+    }
+    const res = MockAPI.createEmployee({
+      first, last, middle:$('#aeMiddle').value.trim(), suffix:$('#aeSuffix').value.trim(),
+      sex:$('#aeSex').value, civil:$('#aeCivil').value, birth:$('#aeBirth').value, nationality:$('#aeNat').value.trim(),
+      position, branch:$('#aeBranch').value, type:$('#aeType').value, status, hired,
+      supervisor:$('#aeSupervisor').value.trim(), shift:$('#aeShift').value, restDay:$('#aeRestDay').value,
+      probationEnd:$('#aeProbationEnd').value, sepType:$('#aeSepType').value, sepDate:$('#aeSepDate').value,
+      salary:$('#aeSalary').value, mobile:$('#aeMobile').value.trim(), email:$('#aeEmail').value.trim(), address:$('#aeAddress').value.trim(),
+      emgName:$('#aeEmgName').value.trim(), emgRel:$('#aeEmgRel').value.trim(), emgPhone:$('#aeEmgPhone').value.trim(),
+      attainment:$('#aeAttainment').value, school:$('#aeSchool').value.trim(), course:$('#aeCourse').value.trim(), gradYear:$('#aeGradYear').value.trim(),
+    });
+    closeModal();
+    toast('Employee added', `${res.employee.name} · ${res.employee.id}`);
+    go(`#/employees/${res.employee.id}`);
+  };
+}
+
 function formMovement(empId){
   const e = empById(empId); if (!e) return;
   openModal(`
@@ -3876,6 +3983,7 @@ document.addEventListener('click', e => {
       case 'new-invitation': openGenerateInvitation(); return;
       case 'file-leave': formFileLeave(); return;
       case 'new-case': formCase(); return;
+      case 'add-employee': formAddEmployee(); return;
       case 'export': toast('Export queued', 'In production this generates an Excel or PDF file.'); return;
     }
   }
