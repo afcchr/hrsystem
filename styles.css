@@ -163,7 +163,7 @@ svg{display:block}
   white-space:nowrap;
 }
 .live-clock-dot{width:5px;height:5px;background:var(--ok)}
-.live-clock-date{font-size:11.5px;color:var(--ink-3)}
+.live-clock-date{font-size:11.5px;color:var(--ink-2)}
 .live-clock-time{
   font-size:11.5px;font-weight:500;color:var(--ink);min-width:74px;text-align:right;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
