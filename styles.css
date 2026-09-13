@@ -269,6 +269,27 @@ svg{display:block}
   50%{transform:rotate(8deg) translateY(-3px)}
 }
 @media (prefers-reduced-motion:reduce){.greet-moon{animation:none}}
+
+.chicken-yard{position:relative;width:260px;max-width:60vw;height:24px;margin-top:2px;overflow:hidden}
+.wander-chicken{
+  position:absolute;bottom:0;left:0;font-size:19px;line-height:1;display:inline-block;
+  animation:chickenWalk 13s linear infinite;
+}
+.wander-chicken .chicken-bob{display:inline-block;animation:chickenBob .45s ease-in-out infinite}
+@keyframes chickenWalk{
+  0%{transform:translateX(0) scaleX(1)}
+  22%{transform:translateX(190px) scaleX(1)}
+  25%{transform:translateX(190px) scaleX(-1)}
+  47%{transform:translateX(20px) scaleX(-1)}
+  50%{transform:translateX(20px) scaleX(1)}
+  72%{transform:translateX(230px) scaleX(1)}
+  75%{transform:translateX(230px) scaleX(-1)}
+  97%{transform:translateX(70px) scaleX(-1)}
+  100%{transform:translateX(70px) scaleX(1)}
+}
+@keyframes chickenBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@media (max-width:720px){.chicken-yard{display:none}}
+@media (prefers-reduced-motion:reduce){.wander-chicken,.wander-chicken .chicken-bob{animation:none}}
 .page-sub{font-size:13px;color:var(--ink-2);margin-top:3px;max-width:74ch}
 .page-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 

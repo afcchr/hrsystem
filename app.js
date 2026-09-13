@@ -665,6 +665,7 @@ function viewDashboard(){
   return `<div class="page-head">
       <div style="min-width:0">
         <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon" aria-hidden="true">${greetingEmoji()}</span></h1>
+        <div class="chicken-yard" aria-hidden="true"><span class="wander-chicken"><span class="chicken-bob">🐔</span></span></div>
       </div>
       <div class="page-actions">
         <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
