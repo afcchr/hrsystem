@@ -4276,6 +4276,9 @@ function bindAppChrome(){
   renderNotifBadge();
   $('#searchTrigger').querySelector('.ico').outerHTML = icon('search',15,'dim');
 
+  // sidebar starts collapsed to icon-only on every load/refresh — the user
+  // expands it manually via the hamburger button when they want labels
+  if (window.innerWidth > 900) $('#sidebar').classList.add('collapsed');
   $('#menuToggle').onclick = () => $('#sidebar').classList.toggle(window.innerWidth > 900 ? 'collapsed' : 'open');
   $('#searchTrigger').onclick = openPalette;
   $('#notifBtn').onclick = e => { e.stopPropagation(); openNotifications(); };
