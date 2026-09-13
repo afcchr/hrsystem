@@ -9,76 +9,78 @@
    Design tokens
    ============================================================ */
 :root{
-  --paper:#fbfbfa;
+  --paper:#f5f5f7;
   --surface:#ffffff;
-  --recess:#f5f5f3;
-  --recess-2:#f0f0ed;
-  --line:#e8e8e4;
-  --line-soft:#efefec;
-  --line-strong:#d9d9d4;
+  --rail:#fbfbfc;
+  --recess:#fafafb;
+  --recess-2:#f0f0f3;
+  --line:#e4e4e8;
+  --line-soft:#ededf1;
+  --line-strong:#d3d4d9;
 
-  --ink:#16181a;
-  --ink-2:#4a4f4c;
-  --ink-3:#6b706d;
-  --ink-4:#9aa09c;
+  --ink:#1d1d1f;
+  --ink-2:#5e6066;
+  --ink-3:#86888f;
+  --ink-4:#a9abb2;
 
-  --accent:#1e6b47;
-  --accent-hover:#175738;
-  --accent-tint:#edf4f0;
-  --accent-line:#c9e0d4;
+  --accent:#0071e3;
+  --accent-hover:#0058b0;
+  --accent-tint:#eaf2fe;
+  --accent-line:#c6ddfb;
 
-  --ok:#2f7a52;      --ok-bg:#eef6f1;   --ok-line:#cfe6da;
-  --warn:#9a6a12;    --warn-bg:#fbf4e6; --warn-line:#ecdcb8;
-  --bad:#a83a37;     --bad-bg:#fbeeed;  --bad-line:#eed3d1;
-  --info:#2b5f8f;    --info-bg:#eef3f8; --info-line:#cfdff0;
-  --neutral:#5d625f; --neutral-bg:#f2f2f0; --neutral-line:#e2e2de;
-  --purple:#5b4a8a;  --purple-bg:#f2f0f8; --purple-line:#ded8ee;
+  --ok:#0e7c4f;      --ok-bg:#e6f3ec;   --ok-line:#bcdfcc;
+  --warn:#9a6700;    --warn-bg:#fcf3e2; --warn-line:#eedbae;
+  --bad:#c0392b;     --bad-bg:#fbebe9;  --bad-line:#f0c9c4;
+  --info:#0071e3;    --info-bg:#eaf2fe; --info-line:#c6ddfb;
+  --neutral:#5e6066; --neutral-bg:#f0f0f3; --neutral-line:#d3d4d9;
+  --purple:#6a4bc4;  --purple-bg:#f0ebfb; --purple-line:#d9cdf2;
 
-  --r-sm:4px; --r:6px; --r-lg:8px;
-  --shadow-pop:0 1px 2px rgba(20,22,20,.06), 0 8px 24px rgba(20,22,20,.10);
-  --shadow-drawer:-1px 0 0 var(--line), -12px 0 40px rgba(20,22,20,.09);
-  --sidebar-w:232px;
-  --topbar-h:52px;
-  --topbar-bg:rgba(251,251,250,.86);
-  --fast:120ms cubic-bezier(.4,0,.2,1);
-  --med:170ms cubic-bezier(.4,0,.2,1);
-  --font:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --r-sm:4px; --r:6px; --r-lg:12px;
+  --shadow-pop:0 2px 4px rgba(17,18,22,.04), 0 10px 26px -8px rgba(17,18,22,.12);
+  --shadow-drawer:-1px 0 0 var(--line), 0 30px 70px -18px rgba(17,18,22,.28), 0 4px 12px rgba(17,18,22,.08);
+  --sidebar-w:236px;
+  --topbar-h:56px;
+  --topbar-bg:rgba(245,245,247,.86);
+  --fast:120ms cubic-bezier(.22,.61,.36,1);
+  --med:160ms cubic-bezier(.22,.61,.36,1);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --chart-fill:var(--accent);
 }
 
 [data-theme="dark"]{
-  --paper:#131417;
-  --surface:#1c1d21;
-  --recess:#0e0f11;
-  --recess-2:#0a0b0d;
-  --line:#2c2d32;
-  --line-soft:#222327;
-  --line-strong:#3c3d43;
+  --paper:#0c0d10;
+  --surface:#141619;
+  --rail:#0f1114;
+  --recess:#181a1e;
+  --recess-2:#1f2227;
+  --line:#25282e;
+  --line-soft:#1e2126;
+  --line-strong:#333740;
 
-  --ink:#f1f1ef;
-  --ink-2:#c6c8c5;
-  --ink-3:#989b98;
-  --ink-4:#6c6f6c;
+  --ink:#f2f3f5;
+  --ink-2:#a7abb4;
+  --ink-3:#7c818b;
+  --ink-4:#5c616b;
 
-  --accent:#3fa374;
-  --accent-hover:#4bb583;
-  --accent-tint:#16261f;
-  --accent-line:#2a4436;
+  --accent:#3b93ff;
+  --accent-hover:#6fb0ff;
+  --accent-tint:#12233a;
+  --accent-line:#1d3a5c;
 
-  --ok:#4bb583;      --ok-bg:#15271e;   --ok-line:#28432f;
-  --warn:#d9a441;    --warn-bg:#2c2414; --warn-line:#4a3c22;
-  --bad:#e2665f;     --bad-bg:#2f1c1a;  --bad-line:#4a2e2a;
-  --info:#5b9bd5;    --info-bg:#17242e; --info-line:#293c4a;
-  --neutral:#a3a6a3; --neutral-bg:#212224; --neutral-line:#37383c;
-  --purple:#a396d8;  --purple-bg:#221e2e; --purple-line:#392f4d;
+  --ok:#31b37d;      --ok-bg:#10241b;   --ok-line:#1d3e2e;
+  --warn:#e0a83c;    --warn-bg:#271e0d; --warn-line:#453619;
+  --bad:#f0705f;     --bad-bg:#2a1614;  --bad-line:#4a2622;
+  --info:#3b93ff;    --info-bg:#12233a; --info-line:#1d3a5c;
+  --neutral:#a7abb4; --neutral-bg:#1f2227; --neutral-line:#333740;
+  --purple:#9a82e8;  --purple-bg:#1c1730; --purple-line:#2e2650;
 
-  --shadow-pop:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.5);
-  --shadow-drawer:-1px 0 0 var(--line), -12px 0 40px rgba(0,0,0,.45);
-  --topbar-bg:rgba(19,20,23,.82);
+  --shadow-pop:0 2px 6px rgba(0,0,0,.4), 0 12px 28px -10px rgba(0,0,0,.6);
+  --shadow-drawer:-1px 0 0 var(--line), 0 30px 70px -18px rgba(0,0,0,.8);
+  --topbar-bg:rgba(12,13,16,.82);
   /* Every hbar/meter/ring across the app shares this hue — the full-bright
      --accent reads as neon once it's repeated in dozens of charts on a dark
      surface, so chart fills get a calmer, more desaturated step instead. */
-  --chart-fill:#4a8568;
+  --chart-fill:#4d87c2;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -91,6 +93,7 @@ body{
   background:var(--paper);
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
+  letter-spacing:-.005em;
 }
 button,input,select,textarea{font:inherit;color:inherit}
 button{background:none;border:0;cursor:pointer}
@@ -120,7 +123,7 @@ svg{display:block}
 /* ---------- Sidebar ---------- */
 .sidebar{
   width:var(--sidebar-w);flex:0 0 var(--sidebar-w);
-  background:var(--recess);
+  background:var(--rail);
   border-right:1px solid var(--line);
   display:flex;flex-direction:column;
   position:fixed;inset:0 auto 0 0;height:100vh;z-index:40;
@@ -149,8 +152,12 @@ svg{display:block}
   position:relative;
 }
 .nav-item:hover{background:var(--recess-2);color:var(--ink)}
-.nav-item.active{background:var(--surface);color:var(--ink);font-weight:550;box-shadow:0 0 0 1px var(--line)}
-.nav-item.active .ico{color:var(--accent)}
+.nav-item.active{background:var(--recess-2);color:var(--ink);font-weight:580}
+.nav-item.active::before{
+  content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:2.5px;
+  border-radius:0 2px 2px 0;background:var(--ink);
+}
+.nav-item.active .ico{color:var(--ink)}
 .nav-item .ico{color:var(--ink-4);flex:0 0 auto;transition:color var(--fast)}
 .nav-item .chev{margin-left:auto;color:var(--ink-4);transition:transform var(--med)}
 .nav-item[aria-expanded="true"] .chev{transform:rotate(90deg)}
@@ -164,7 +171,7 @@ svg{display:block}
 .nav-sub.open{grid-template-rows:1fr}
 .nav-sub > div{overflow:hidden}
 .nav-sub .nav-item{padding-left:31px;font-size:12.5px;color:var(--ink-3)}
-.nav-sub .nav-item.active{color:var(--ink);background:var(--surface)}
+.nav-sub .nav-item.active{color:var(--ink);background:var(--recess-2)}
 .nav-sub .nav-item::before{
   content:"";position:absolute;left:18px;top:50%;width:3px;height:3px;border-radius:50%;
   background:var(--ink-4);transform:translateY(-50%);transition:background var(--fast)
