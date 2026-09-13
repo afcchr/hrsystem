@@ -158,12 +158,16 @@ svg{display:block}
 .crumbs button:hover{color:var(--ink)}
 .topbar-spacer{flex:1 1 auto}
 .live-clock{
-  display:flex;align-items:center;gap:7px;height:30px;padding:0 8px;
+  display:flex;align-items:center;gap:8px;height:30px;padding:0 11px;
   border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
-  font-size:12.5px;color:var(--ink-3);white-space:nowrap;
+  white-space:nowrap;
 }
-.live-clock-dot{width:6px;height:6px;background:var(--ok)}
-.live-clock-time{font-weight:400;color:var(--ink)}
+.live-clock-dot{width:5px;height:5px;background:var(--ok)}
+.live-clock-date{font-size:11.5px;color:var(--ink-3)}
+.live-clock-time{
+  font-size:11.5px;font-weight:400;color:var(--ink);min-width:74px;text-align:right;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+}
 @media (max-width:720px){ .live-clock-date{display:none} }
 .search-trigger{
   display:flex;align-items:center;gap:8px;height:30px;padding:0 9px;min-width:230px;
