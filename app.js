@@ -4072,7 +4072,7 @@ function bindAppChrome(){
   renderNotifBadge();
   $('#searchTrigger').querySelector('.ico').outerHTML = icon('search',15,'dim');
 
-  $('#menuToggle').onclick = () => $('#sidebar').classList.toggle('open');
+  $('#menuToggle').onclick = () => $('#sidebar').classList.toggle(window.innerWidth > 900 ? 'collapsed' : 'open');
   $('#searchTrigger').onclick = openPalette;
   $('#notifBtn').onclick = e => { e.stopPropagation(); openNotifications(); };
   $('#quickBtn').onclick = e => { e.stopPropagation(); openQuickActions(); };
