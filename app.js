@@ -662,9 +662,15 @@ function viewDashboard(){
         </div>`).join('')}</div>`)}
   </div>`;
 
-  return page('Human Resources', `${COMPANY.name} · ${fmtDate(d2s(TODAY),'long')}`, `
+  return page(dashboardGreeting(), '', `
     <button class="btn" data-action="new-invitation">${icon('qr',15)} New invitation</button>
     <button class="btn primary" data-goto="#/recruitment/ats">${icon('users',15)} Applicant tracking</button>`, body);
+}
+function dashboardGreeting(){
+  const h = new Date().getHours();
+  const part = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  const first = ((AppState.currentUser && AppState.currentUser.name) || '').trim().split(' ')[0] || 'there';
+  return `Good ${part}, ${first}`;
 }
 
 /* ---------------------------------------------------------------------------
