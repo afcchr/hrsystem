@@ -28,8 +28,15 @@ begin
       );
     $f$, t);
     execute format('alter table public.%I enable row level security;', t);
+    -- Table-level GRANTs are a separate layer from RLS policies below — a
+    -- role needs both, or every query on the table is refused outright with
+    -- "permission denied for table ..." before RLS even runs.
+    execute format('grant select, insert, update, delete on public.%I to authenticated;', t);
+    execute format('grant select on public.%I to anon;', t);
   end loop;
 end $$;
+
+grant usage on schema public to anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 2. Profiles (one row per logged-in HR staff account).
@@ -44,6 +51,7 @@ create table if not exists public.profiles (
   created_at timestamptz not null default now()
 );
 alter table public.profiles enable row level security;
+grant select, update on public.profiles to authenticated;
 
 -- auto-create a profile row whenever the administrator adds a new HR user
 -- (Authentication > Users > Add user) — there is no public sign-up
@@ -97,6 +105,9 @@ begin
     $f$, t);
   end loop;
 end $$;
+
+grant update on public.invitations to anon;
+grant insert on public.applicants to anon;
 
 drop policy if exists "public can view invitations" on public.invitations;
 create policy "public can view invitations" on public.invitations
