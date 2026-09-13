@@ -9,6 +9,7 @@
    --------------------------------------------------------------------------- */
 const ICONS = {
   grid:'<path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>',
+  menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',
   userplus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6"/>',
   users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -4067,7 +4068,7 @@ function bindAppChrome(){
   startClock();
   initTheme();
   $('#themeToggle').onclick = toggleTheme;
-  $('#menuToggle').innerHTML = icon('layers',17);
+  $('#menuToggle').innerHTML = icon('menu',17);
   $('#quickBtn').innerHTML = icon('bolt',17);
   renderNotifBadge();
   $('#searchTrigger').querySelector('.ico').outerHTML = icon('search',15,'dim');
