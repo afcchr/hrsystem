@@ -4303,7 +4303,9 @@ async function bootAdmin(){
   $('#bootLoading').classList.remove('hidden');
   $('#authScreen').classList.add('hidden');
   try{
-    await seedDatabaseIfEmpty();
+    // Demo/sample data auto-seeding is disabled — the database holds real
+    // records now. Re-enable by calling seedDatabaseIfEmpty() here again
+    // if you ever need a fresh demo dataset (e.g. for testing).
     await loadAppStateFromDB();
   }catch(e){ console.error('[Supabase] failed to load HR data', e); }
 
