@@ -445,14 +445,19 @@ function renderNav(){
   nav.innerHTML = NAV.map(item => {
     if (item.section) return `<div class="nav-section">${esc(item.section)}</div>`;
     if (item.children){
-      const isOpen = openGroups.has(item.label) || item.children.some(c => cur.startsWith(c.route));
+      // a route like '#/recruitment' is a plain string-prefix of its own siblings
+      // ('#/recruitment/invitations', etc.), so only fall back to prefix matching
+      // (for a detail page under a list route) when nothing matched exactly.
+      const exactMatch = item.children.find(c => cur === c.route);
+      const isChildActive = c => exactMatch ? c === exactMatch : cur.startsWith(c.route + '/');
+      const isOpen = openGroups.has(item.label) || item.children.some(isChildActive);
       if (isOpen) openGroups.add(item.label);
-      const activeChild = item.children.some(c => cur === c.route || cur.startsWith(c.route + '/'));
+      const activeChild = item.children.some(isChildActive);
       return `<button class="nav-item ${activeChild && !isOpen ? 'active':''}" data-group="${esc(item.label)}" aria-expanded="${isOpen}">
           ${icon(item.icon,16)}<span>${esc(item.label)}</span>${icon('chevron',13,'chev')}
         </button>
         <div class="nav-sub ${isOpen?'open':''}"><div>
-          ${item.children.map(c => `<button class="nav-item ${cur === c.route || cur.startsWith(c.route+'/') ? 'active':''}" data-route="${c.route}">
+          ${item.children.map(c => `<button class="nav-item ${isChildActive(c) ? 'active':''}" data-route="${c.route}">
             <span>${esc(c.label)}</span>${c.badge && c.badge() ? `<span class="nav-badge">${c.badge()}</span>` : ''}</button>`).join('')}
         </div></div>`;
     }
