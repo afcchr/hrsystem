@@ -2232,10 +2232,6 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">First name *</span><input class="input" id="eoFirst"></label>
         <label class="field"><span class="flabel">Middle name</span><input class="input" id="eoMiddle"></label>
         <label class="field"><span class="flabel">Nickname</span><input class="input" id="eoNickname"></label>
-        <label class="field span2"><span class="flabel">Present address</span><input class="input" id="eoAddress"></label>
-        <label class="field span2"><span class="flabel">Permanent address</span><input class="input" id="eoPermAddress"></label>
-        <label class="field"><span class="flabel">Province</span><input class="input" id="eoProvince"></label>
-        <label class="field"><span class="flabel">Years at permanent address</span><input class="input" id="eoYearsAddress"></label>
         <label class="field"><span class="flabel">Mobile no.</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
         <label class="field"><span class="flabel">Landline no.</span><input class="input" id="eoLandline"></label>
         <label class="field"><span class="flabel">Birth date</span><input class="input" type="date" id="eoBirth"></label>
@@ -2248,6 +2244,31 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">Civil status</span>
           <select class="input" id="eoCivil"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
         <label class="field"><span class="flabel">Wedding date</span><input class="input" type="date" id="eoWeddingDate"></label>
+      </div>
+
+      <div class="flabel" style="margin-top:14px">Present address</div>
+      <div class="fgrid fg2">
+        <label class="field span2"><span class="flabel">Street / house no. / subdivision</span><input class="input" id="eoPresStreet"></label>
+        <label class="field"><span class="flabel">Barangay</span><input class="input" id="eoPresBarangay"></label>
+        <label class="field"><span class="flabel">City / municipality</span><input class="input" id="eoPresCity"></label>
+        <label class="field"><span class="flabel">Province</span><input class="input" id="eoPresProvince"></label>
+        <label class="field"><span class="flabel">Zip code</span><input class="input" id="eoPresZip"></label>
+      </div>
+
+      <label class="row" style="margin-top:10px;gap:8px;cursor:pointer">
+        <input type="checkbox" id="eoSameAddress"><span style="font-size:12.5px;color:var(--ink-2)">Permanent address is the same as present address</span>
+      </label>
+
+      <div id="eoPermAddressBlock">
+        <div class="flabel" style="margin-top:14px">Permanent address</div>
+        <div class="fgrid fg2">
+          <label class="field span2"><span class="flabel">Street / house no. / subdivision</span><input class="input" id="eoPermStreet"></label>
+          <label class="field"><span class="flabel">Barangay</span><input class="input" id="eoPermBarangay"></label>
+          <label class="field"><span class="flabel">City / municipality</span><input class="input" id="eoPermCity"></label>
+          <label class="field"><span class="flabel">Province</span><input class="input" id="eoPermProvince"></label>
+          <label class="field"><span class="flabel">Zip code</span><input class="input" id="eoPermZip"></label>
+          <label class="field"><span class="flabel">Years at this address</span><input class="input" id="eoYearsAddress"></label>
+        </div>
       </div>
 
       <div class="fgrid fg2" style="margin-top:12px">
@@ -2339,6 +2360,7 @@ function renderEmployeeOnboard(done){
     </div>`);
 
   $('#eoBranch').onchange = () => { $('#eoStoreRow').style.display = $('#eoBranch').value === 'STR' ? '' : 'none'; };
+  $('#eoSameAddress').onchange = e => { $('#eoPermAddressBlock').style.display = e.target.checked ? 'none' : ''; };
 
   $('#eoSubmit').onclick = () => {
     const first = $('#eoFirst').value.trim(), last = $('#eoLast').value.trim();
@@ -2359,16 +2381,25 @@ function renderEmployeeOnboard(done){
       return { name:v(`#eo${prefix}${i}Name`), birth:v(`#eo${prefix}${i}Birth`), occupation:v(`#eo${prefix}${i}Occ`), company:v(`#eo${prefix}${i}Co`) };
     }).filter(p => p.name);
 
+    const addrLine = (street, brgy, city, province, zip) =>
+      [street, brgy && `Brgy. ${brgy}`, city, province, zip].filter(Boolean).join(', ');
+    const present = { street:v('#eoPresStreet'), barangay:v('#eoPresBarangay'), city:v('#eoPresCity'), province:v('#eoPresProvince'), zip:v('#eoPresZip') };
+    const sameAddress = $('#eoSameAddress').checked;
+    const permanent = sameAddress ? present : { street:v('#eoPermStreet'), barangay:v('#eoPermBarangay'), city:v('#eoPermCity'), province:v('#eoPermProvince'), zip:v('#eoPermZip') };
+    const presentLine = addrLine(present.street, present.barangay, present.city, present.province, present.zip);
+
     MockAPI.createEmployee({
       first, last, middle:$('#eoMiddle').value.trim(), suffix:'',
       sex:$('#eoSex').value, civil:$('#eoCivil').value, birth:$('#eoBirth').value, nationality:$('#eoNat').value.trim(),
       position, dept:$('#eoDept').value, branch:$('#eoBranch').value,
       store:$('#eoBranch').value === 'STR' ? $('#eoStore').value : null, type:$('#eoStatus').value, status:$('#eoStatus').value, hired,
-      supervisor:$('#eoSupervisor').value.trim(), mobile:$('#eoMobile').value.trim(), email:$('#eoEmail').value.trim(), address:$('#eoAddress').value.trim(),
+      supervisor:$('#eoSupervisor').value.trim(), mobile:$('#eoMobile').value.trim(), email:$('#eoEmail').value.trim(), address:presentLine,
       emgName:v('#eoEmg1Name'), emgRel:v('#eoEmg1Rel'), emgPhone:v('#eoEmg1Phone'),
       attainment:'', school:'', course:'', gradYear:'',
       personal:{
-        nickname:v('#eoNickname'), permanentAddress:v('#eoPermAddress'), province:v('#eoProvince'),
+        nickname:v('#eoNickname'),
+        presentAddress:present, permanentAddress:permanent,
+        permanentAddressLine:addrLine(permanent.street, permanent.barangay, permanent.city, permanent.province, permanent.zip),
         yearsAtAddress:v('#eoYearsAddress'), landline:v('#eoLandline'), birthplace:v('#eoBirthplace'),
         fbAccount:v('#eoFb'), religion:v('#eoReligion'), weddingDate:v('#eoWeddingDate'),
         spouseName:v('#eoSpouseName'), spouseBirth:v('#eoSpouseBirth'), spouseOccupation:v('#eoSpouseOcc'),
