@@ -49,13 +49,20 @@ const DEPARTMENTS = [
 const deptName = code => (DEPARTMENTS.find(d => d.code === code) || {}).name || code;
 
 const BRANCHES = [
-  { code:'BUL', name:'Bulacan Dressing Plant',  city:'San Rafael, Bulacan',  type:'Plant' },
-  { code:'CAV', name:'Cavite Processing Center',city:'Silang, Cavite',       type:'Plant' },
-  { code:'PRQ', name:'Parañaque Head Office',   city:'Parañaque City',       type:'Office' },
-  { code:'LAG', name:'Laguna Distribution Hub', city:'Calamba, Laguna',      type:'Hub' },
-  { code:'BAT', name:'Batangas Farm Site',      city:'Lipa, Batangas',       type:'Farm' },
+  { code:'PLT', name:'Poultry Farm',   city:'', type:'Farm' },
+  { code:'PIG', name:'Piggery Farm',   city:'', type:'Farm' },
+  { code:'AQC', name:'Aqua Culture',   city:'', type:'Farm' },
+  { code:'DRP', name:'Dressing Plant', city:'', type:'Plant' },
+  { code:'PKT', name:'Park Trade',     city:'', type:'Trade' },
+  { code:'STR', name:'Stores',         city:'', type:'Store' },
+];
+const STORES = [
+  { code:'BBQ', name:'BBQ Okada' },
+  { code:'RTL', name:'Retail Stores' },
+  { code:'FVS', name:'Five Star' },
 ];
 const branchName = code => (BRANCHES.find(b => b.code === code) || {}).name || code;
+const storeName = code => (STORES.find(s => s.code === code) || {}).name || code;
 
 const POSITIONS = [
   { code:'P-PRD-01', title:'Production Worker',        dept:'PRD', level:'Rank & File', min:16000, max:19500 },
@@ -1156,7 +1163,7 @@ const MockAPI = {
     const emp = {
       id, name, first, middle, last, suffix:data.suffix || '',
       sex:data.sex, civil:data.civil, nationality:data.nationality || 'Filipino', birth:data.birth || null,
-      position:data.position, dept:data.dept, branch:data.branch,
+      position:data.position, dept:data.dept, branch:data.branch, store:data.store || null,
       type:data.type, hired:data.hired, status:data.status,
       supervisor:data.supervisor || null, level,
       email:data.email || `${first.toLowerCase()}.${last.toLowerCase().replace(/\s/g,'')}@artfreshchicken.ph`,

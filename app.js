@@ -2271,8 +2271,10 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">Department *</span>
           <select class="input" id="eoDept">${DEPARTMENTS.map(d => `<option value="${esc(d.code)}">${esc(d.name)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Position *</span><input class="input" id="eoPosition" placeholder="Your exact job title"></label>
-        <label class="field"><span class="flabel">Branch *</span>
+        <label class="field"><span class="flabel">Work assignment *</span>
           <select class="input" id="eoBranch">${BRANCHES.map(b => `<option value="${esc(b.code)}">${esc(b.name)}</option>`).join('')}</select></label>
+        <label class="field" id="eoStoreRow" style="display:none"><span class="flabel">Which store? *</span>
+          <select class="input" id="eoStore">${STORES.map(s => `<option value="${esc(s.code)}">${esc(s.name)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Status</span>
           <select class="input" id="eoStatus">${EMPLOYMENT_STATUSES.map(s => `<option>${esc(s)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Date hired *</span><input class="input" type="date" id="eoHired"></label>
@@ -2336,6 +2338,8 @@ function renderEmployeeOnboard(done){
       <div style="margin-top:18px"><button class="btn primary" id="eoSubmit">${icon('check',15)} Submit</button></div>
     </div>`);
 
+  $('#eoBranch').onchange = () => { $('#eoStoreRow').style.display = $('#eoBranch').value === 'STR' ? '' : 'none'; };
+
   $('#eoSubmit').onclick = () => {
     const first = $('#eoFirst').value.trim(), last = $('#eoLast').value.trim();
     const position = $('#eoPosition').value.trim(), hired = $('#eoHired').value;
@@ -2358,7 +2362,8 @@ function renderEmployeeOnboard(done){
     MockAPI.createEmployee({
       first, last, middle:$('#eoMiddle').value.trim(), suffix:'',
       sex:$('#eoSex').value, civil:$('#eoCivil').value, birth:$('#eoBirth').value, nationality:$('#eoNat').value.trim(),
-      position, dept:$('#eoDept').value, branch:$('#eoBranch').value, type:$('#eoStatus').value, status:$('#eoStatus').value, hired,
+      position, dept:$('#eoDept').value, branch:$('#eoBranch').value,
+      store:$('#eoBranch').value === 'STR' ? $('#eoStore').value : null, type:$('#eoStatus').value, status:$('#eoStatus').value, hired,
       supervisor:$('#eoSupervisor').value.trim(), mobile:$('#eoMobile').value.trim(), email:$('#eoEmail').value.trim(), address:$('#eoAddress').value.trim(),
       emgName:v('#eoEmg1Name'), emgRel:v('#eoEmg1Rel'), emgPhone:v('#eoEmg1Phone'),
       attainment:'', school:'', course:'', gradYear:'',
@@ -3849,8 +3854,10 @@ function formAddEmployee(){
         <label class="field"><span class="flabel">Position *</span><input class="input" id="aePosition" placeholder="Exact job title"></label>
         <label class="field"><span class="flabel">Level</span>
           <select class="input" id="aeLevel"><option>Rank &amp; File</option><option>Supervisory</option><option>Managerial</option></select></label>
-        <label class="field"><span class="flabel">Branch *</span>
+        <label class="field"><span class="flabel">Work assignment *</span>
           <select class="input" id="aeBranch">${BRANCHES.map(b => `<option value="${esc(b.code)}">${esc(b.name)}</option>`).join('')}</select></label>
+        <label class="field" id="aeStoreRow" style="display:none"><span class="flabel">Which store? *</span>
+          <select class="input" id="aeStore">${STORES.map(s => `<option value="${esc(s.code)}">${esc(s.name)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Employment type</span>
           <select class="input" id="aeType">${EMPLOYMENT_TYPES.map(t => `<option>${esc(t)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Status *</span>
@@ -3901,8 +3908,10 @@ function formAddEmployee(){
     const status = $('#aeStatus').value;
     $('#aeProbationRow').style.display = status === 'Probationary' ? '' : 'none';
     $('#aeSeparationRow').style.display = (status === 'Separated' || status === 'Retired') ? '' : 'none';
+    $('#aeStoreRow').style.display = $('#aeBranch').value === 'STR' ? '' : 'none';
   };
   $('#aeStatus').onchange = toggleConditional;
+  $('#aeBranch').onchange = toggleConditional;
   toggleConditional();
 
   $('#aeSave').onclick = () => {
@@ -3916,7 +3925,8 @@ function formAddEmployee(){
     const res = MockAPI.createEmployee({
       first, last, middle:$('#aeMiddle').value.trim(), suffix:$('#aeSuffix').value.trim(),
       sex:$('#aeSex').value, civil:$('#aeCivil').value, birth:$('#aeBirth').value, nationality:$('#aeNat').value.trim(),
-      position, dept:$('#aeDept').value, level:$('#aeLevel').value, branch:$('#aeBranch').value, type:$('#aeType').value, status, hired,
+      position, dept:$('#aeDept').value, level:$('#aeLevel').value, branch:$('#aeBranch').value,
+      store:$('#aeBranch').value === 'STR' ? $('#aeStore').value : null, type:$('#aeType').value, status, hired,
       supervisor:$('#aeSupervisor').value.trim(), shift:$('#aeShift').value,
       probationEnd:$('#aeProbationEnd').value, sepType:$('#aeSepType').value, sepDate:$('#aeSepDate').value,
       salary:$('#aeSalary').value, mobile:$('#aeMobile').value.trim(), email:$('#aeEmail').value.trim(), address:$('#aeAddress').value.trim(),
