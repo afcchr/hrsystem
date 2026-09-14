@@ -2229,10 +2229,14 @@ function renderEmployeeOnboard(done){
   ];
   const licenseGroup = g => `
     <div class="flabel" style="margin-top:12px">${esc(g.label)}</div>
-    <div class="row wrap" style="gap:6px 18px;margin-top:4px">
-      ${g.items.map((item,i) => `<label class="check" style="font-size:12.5px"><input type="checkbox" id="eoLic_${g.key}_${i}"><span>${esc(item)}</span></label>`).join('')}
+    <div class="lic-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 18px;margin-top:6px;align-items:start">
+      ${g.items.map((item,i) => `
+        <div>
+          <label class="check" style="font-size:12.5px"><input type="checkbox" id="eoLic_${g.key}_${i}"><span>${esc(item)}</span></label>
+          <input class="input" id="eoLic_${g.key}_${i}_no" placeholder="License / ID no." style="display:none;margin-top:6px;font-size:12.5px;padding:7px 10px">
+        </div>`).join('')}
     </div>
-    ${g.other ? `<div class="field" style="margin-top:8px;max-width:360px"><span class="flabel">Others: please specify</span><input class="input" id="eoLic_${g.key}_other"></div>` : ''}`;
+    ${g.other ? `<div class="field" style="margin-top:10px;max-width:360px"><span class="flabel">Others: please specify</span><input class="input" id="eoLic_${g.key}_other"></div>` : ''}`;
 
   root.innerHTML = employeeOnboardShell(`
     <div class="portal-card">
@@ -2376,6 +2380,12 @@ function renderEmployeeOnboard(done){
 
   $('#eoBranch').onchange = () => { $('#eoStoreRow').style.display = $('#eoBranch').value === 'STR' ? '' : 'none'; };
   $('#eoSameAddress').onchange = e => { $('#eoPermAddressBlock').style.display = e.target.checked ? 'none' : ''; };
+  LICENSE_GROUPS.forEach(g => {
+    g.items.forEach((item,i) => {
+      const cb = $(`#eoLic_${g.key}_${i}`), no = $(`#eoLic_${g.key}_${i}_no`);
+      cb.onchange = () => { no.style.display = cb.checked ? '' : 'none'; if (!cb.checked) no.value = ''; };
+    });
+  });
 
   $('#eoSubmit').onclick = () => {
     const first = $('#eoFirst').value.trim(), last = $('#eoLast').value.trim();
@@ -2398,7 +2408,11 @@ function renderEmployeeOnboard(done){
 
     const licenses = {};
     LICENSE_GROUPS.forEach(g => {
-      licenses[g.key] = g.items.filter((_, i) => $(`#eoLic_${g.key}_${i}`).checked);
+      const entries = [];
+      g.items.forEach((item,i) => {
+        if ($(`#eoLic_${g.key}_${i}`).checked) entries.push({ item, number:v(`#eoLic_${g.key}_${i}_no`) });
+      });
+      licenses[g.key] = entries;
       if (g.other) licenses[g.key + 'Other'] = v(`#eoLic_${g.key}_other`);
     });
 
