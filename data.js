@@ -1188,6 +1188,7 @@ const MockAPI = {
       ...(data.emergencyContacts ? { emergencyContacts:data.emergencyContacts } : {}),
       ...(data.educationDetail ? { educationDetail:data.educationDetail } : {}),
       ...(data.family ? { family:data.family } : {}),
+      ...(data.licenses ? { licenses:data.licenses } : {}),
     };
     AppState.employees.unshift(emp);
     this._audit('Employees','Employee Added Manually', id, `${name} · ${data.position} · ${data.status}`);

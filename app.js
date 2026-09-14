@@ -2220,6 +2220,19 @@ function renderEmployeeOnboard(done){
       <td style="padding:4px"><input class="input" id="eo${prefix}${i}Occ" placeholder="Occupation"></td>
       <td style="padding:4px"><input class="input" id="eo${prefix}${i}Co" placeholder="${prefix==='Child'?'School':'Company'}"></td>
     </tr>`;
+  const LICENSE_GROUPS = [
+    { key:'professional', label:'1. Professional licenses', items:['PRC License','CPA','Engineer','Nurse','Teacher','Architect'], other:true },
+    { key:'skills', label:'2. Skills certifications', items:['TESDA NC','TESDA COC','Safety certifications','Technical certifications'] },
+    { key:'govIds', label:'3. Government IDs', items:['PhilSys National ID','Passport','Driver’s License'] },
+    { key:'clearances', label:'4. Government clearances', items:['NBI Clearance','Police Clearance','Barangay Clearance'] },
+    { key:'industry', label:'5. Industry-specific licenses', items:['LTO Professional Driver’s License','MARINA certifications','Security Guard License','Food/Health certifications','Other regulated occupational licenses'] },
+  ];
+  const licenseGroup = g => `
+    <div class="flabel" style="margin-top:12px">${esc(g.label)}</div>
+    <div class="row wrap" style="gap:6px 18px;margin-top:4px">
+      ${g.items.map((item,i) => `<label class="check" style="font-size:12.5px"><input type="checkbox" id="eoLic_${g.key}_${i}"><span>${esc(item)}</span></label>`).join('')}
+    </div>
+    ${g.other ? `<div class="field" style="margin-top:8px;max-width:360px"><span class="flabel">Others: please specify</span><input class="input" id="eoLic_${g.key}_other"></div>` : ''}`;
 
   root.innerHTML = employeeOnboardShell(`
     <div class="portal-card">
@@ -2279,13 +2292,15 @@ function renderEmployeeOnboard(done){
       </div>
 
       <div class="fgrid fg2" style="margin-top:12px">
-        <label class="field"><span class="flabel">Gov't license taken</span><input class="input" id="eoGovLicense"></label>
         <label class="field"><span class="flabel">Tax status</span><input class="input" id="eoTaxStatus"></label>
         <label class="field"><span class="flabel">SSS no.</span><input class="input" id="eoSss"></label>
         <label class="field"><span class="flabel">TIN no.</span><input class="input" id="eoTin"></label>
         <label class="field"><span class="flabel">Pag-IBIG no.</span><input class="input" id="eoPagibig"></label>
         <label class="field"><span class="flabel">PhilHealth no.</span><input class="input" id="eoPhilhealth"></label>
       </div>
+
+      ${sec('Licenses & certifications')}
+      ${LICENSE_GROUPS.map(licenseGroup).join('')}
 
       ${sec('Employment')}
       <div class="fgrid fg2">
@@ -2381,6 +2396,12 @@ function renderEmployeeOnboard(done){
       return { name:v(`#eo${prefix}${i}Name`), birth:v(`#eo${prefix}${i}Birth`), occupation:v(`#eo${prefix}${i}Occ`), company:v(`#eo${prefix}${i}Co`) };
     }).filter(p => p.name);
 
+    const licenses = {};
+    LICENSE_GROUPS.forEach(g => {
+      licenses[g.key] = g.items.filter((_, i) => $(`#eoLic_${g.key}_${i}`).checked);
+      if (g.other) licenses[g.key + 'Other'] = v(`#eoLic_${g.key}_other`);
+    });
+
     const addrLine = (street, brgy, city, province, zip) =>
       [street, brgy && `Brgy. ${brgy}`, city, province, zip].filter(Boolean).join(', ');
     const present = { street:v('#eoPresStreet'), barangay:v('#eoPresBarangay'), city:v('#eoPresCity'), province:v('#eoPresProvince'), zip:v('#eoPresZip') };
@@ -2403,9 +2424,10 @@ function renderEmployeeOnboard(done){
         yearsAtAddress:v('#eoYearsAddress'), landline:v('#eoLandline'), birthplace:v('#eoBirthplace'),
         fbAccount:v('#eoFb'), religion:v('#eoReligion'), weddingDate:v('#eoWeddingDate'),
         spouseName:v('#eoSpouseName'), spouseBirth:v('#eoSpouseBirth'), spouseOccupation:v('#eoSpouseOcc'),
-        numChildren:v('#eoNumChildren'), govLicense:v('#eoGovLicense'), taxStatus:v('#eoTaxStatus'),
+        numChildren:v('#eoNumChildren'), taxStatus:v('#eoTaxStatus'),
         sssNo:v('#eoSss'), tinNo:v('#eoTin'), pagibigNo:v('#eoPagibig'), philhealthNo:v('#eoPhilhealth'),
       },
+      licenses,
       emergencyContacts:[
         { name:v('#eoEmg1Name'), rel:v('#eoEmg1Rel'), address:v('#eoEmg1Address'), phone:v('#eoEmg1Phone') },
         { name:v('#eoEmg2Name'), rel:v('#eoEmg2Rel'), address:v('#eoEmg2Address'), phone:v('#eoEmg2Phone') },
