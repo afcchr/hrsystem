@@ -1174,6 +1174,13 @@ const MockAPI = {
       separatedOn:isSeparated ? (data.sepDate || null) : null,
       separationType:isSeparated ? (data.sepType || null) : null,
       fromApplication:null, avatar:avatarColor(name + id), isNew:true,
+      // Full 201-file biodata — optional, only present when submitted through
+      // the self-service form (#/onboard); the HR manual-entry form doesn't
+      // ask for this level of detail.
+      ...(data.personal ? { personal:data.personal } : {}),
+      ...(data.emergencyContacts ? { emergencyContacts:data.emergencyContacts } : {}),
+      ...(data.educationDetail ? { educationDetail:data.educationDetail } : {}),
+      ...(data.family ? { family:data.family } : {}),
     };
     AppState.employees.unshift(emp);
     this._audit('Employees','Employee Added Manually', id, `${name} · ${data.position} · ${data.status}`);

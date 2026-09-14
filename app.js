@@ -2203,25 +2203,70 @@ function renderEmployeeOnboard(done){
     return;
   }
 
+  const sec = title => `<div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">${esc(title)}</div>`;
+  const EDU_LEVELS = ['Elementary','Secondary','College','Graduate School','Vocational'];
+  const eduRow = level => { const k = level.replace(/\s/g,''); return `
+    <tr>
+      <td style="font-weight:600;white-space:nowrap;padding:6px 10px 6px 0;font-size:12.5px">${esc(level)}</td>
+      <td style="padding:4px"><input class="input" id="eoEdu${k}School" placeholder="Name of school"></td>
+      <td style="padding:4px;width:88px"><input class="input" id="eoEdu${k}From" placeholder="From"></td>
+      <td style="padding:4px;width:88px"><input class="input" id="eoEdu${k}To" placeholder="To"></td>
+      <td style="padding:4px"><input class="input" id="eoEdu${k}Course" placeholder="Course / Degree / Awards"></td>
+    </tr>`; };
+  const personRow = (prefix, i) => `
+    <tr>
+      <td style="padding:4px"><input class="input" id="eo${prefix}${i}Name" placeholder="Name"></td>
+      <td style="padding:4px;width:130px"><input class="input" type="date" id="eo${prefix}${i}Birth"></td>
+      <td style="padding:4px"><input class="input" id="eo${prefix}${i}Occ" placeholder="Occupation"></td>
+      <td style="padding:4px"><input class="input" id="eo${prefix}${i}Co" placeholder="${prefix==='Child'?'School':'Company'}"></td>
+    </tr>`;
+
   root.innerHTML = employeeOnboardShell(`
     <div class="portal-card">
       <h1 class="portal-h1">Employee information form</h1>
       <p class="portal-lead">Please complete your details below. This adds you directly to the ${esc(COMPANY.name)} employee records — no login needed. Submit once for yourself.</p>
 
-      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Personal</div>
+      ${sec('I. Personal data')}
       <div class="fgrid fg2">
-        <label class="field"><span class="flabel">First name *</span><input class="input" id="eoFirst"></label>
         <label class="field"><span class="flabel">Last name *</span><input class="input" id="eoLast"></label>
+        <label class="field"><span class="flabel">First name *</span><input class="input" id="eoFirst"></label>
         <label class="field"><span class="flabel">Middle name</span><input class="input" id="eoMiddle"></label>
-        <label class="field"><span class="flabel">Suffix</span><input class="input" id="eoSuffix" placeholder="Jr., III, etc."></label>
+        <label class="field"><span class="flabel">Nickname</span><input class="input" id="eoNickname"></label>
+        <label class="field span2"><span class="flabel">Present address</span><input class="input" id="eoAddress"></label>
+        <label class="field span2"><span class="flabel">Permanent address</span><input class="input" id="eoPermAddress"></label>
+        <label class="field"><span class="flabel">Province</span><input class="input" id="eoProvince"></label>
+        <label class="field"><span class="flabel">Years at permanent address</span><input class="input" id="eoYearsAddress"></label>
+        <label class="field"><span class="flabel">Mobile no.</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
+        <label class="field"><span class="flabel">Landline no.</span><input class="input" id="eoLandline"></label>
+        <label class="field"><span class="flabel">Birth date</span><input class="input" type="date" id="eoBirth"></label>
+        <label class="field"><span class="flabel">Birthplace</span><input class="input" id="eoBirthplace"></label>
+        <label class="field"><span class="flabel">Nationality</span><input class="input" id="eoNat" value="Filipino"></label>
         <label class="field"><span class="flabel">Sex</span><select class="input" id="eoSex"><option>Male</option><option>Female</option></select></label>
+        <label class="field"><span class="flabel">Email address</span><input class="input" type="email" id="eoEmail"></label>
+        <label class="field"><span class="flabel">Facebook account</span><input class="input" id="eoFb"></label>
+        <label class="field"><span class="flabel">Religion</span><input class="input" id="eoReligion"></label>
         <label class="field"><span class="flabel">Civil status</span>
           <select class="input" id="eoCivil"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
-        <label class="field"><span class="flabel">Birth date</span><input class="input" type="date" id="eoBirth"></label>
-        <label class="field"><span class="flabel">Nationality</span><input class="input" id="eoNat" value="Filipino"></label>
+        <label class="field"><span class="flabel">Wedding date</span><input class="input" type="date" id="eoWeddingDate"></label>
       </div>
 
-      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Employment</div>
+      <div class="fgrid fg2" style="margin-top:12px">
+        <label class="field"><span class="flabel">Name of spouse</span><input class="input" id="eoSpouseName"></label>
+        <label class="field"><span class="flabel">Spouse birthdate</span><input class="input" type="date" id="eoSpouseBirth"></label>
+        <label class="field"><span class="flabel">Occupation of spouse</span><input class="input" id="eoSpouseOcc"></label>
+        <label class="field"><span class="flabel">No. of children</span><input class="input" type="number" id="eoNumChildren" min="0"></label>
+      </div>
+
+      <div class="fgrid fg2" style="margin-top:12px">
+        <label class="field"><span class="flabel">Gov't license taken</span><input class="input" id="eoGovLicense"></label>
+        <label class="field"><span class="flabel">Tax status</span><input class="input" id="eoTaxStatus"></label>
+        <label class="field"><span class="flabel">SSS no.</span><input class="input" id="eoSss"></label>
+        <label class="field"><span class="flabel">TIN no.</span><input class="input" id="eoTin"></label>
+        <label class="field"><span class="flabel">Pag-IBIG no.</span><input class="input" id="eoPagibig"></label>
+        <label class="field"><span class="flabel">PhilHealth no.</span><input class="input" id="eoPhilhealth"></label>
+      </div>
+
+      ${sec('Employment')}
       <div class="fgrid fg2">
         <label class="field"><span class="flabel">Department *</span>
           <select class="input" id="eoDept">${DEPARTMENTS.map(d => `<option value="${esc(d.code)}">${esc(d.name)}</option>`).join('')}</select></label>
@@ -2234,28 +2279,58 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">Immediate supervisor</span><input class="input" id="eoSupervisor"></label>
       </div>
 
-      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Contact</div>
+      ${sec('II. In case of emergency')}
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Relationship</th><th style="padding:0 4px 4px">Address</th><th style="padding:0 4px 4px">Contact no.</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="padding:4px"><input class="input" id="eoEmg1Name"></td>
+            <td style="padding:4px"><input class="input" id="eoEmg1Rel" placeholder="Spouse, Parent, Sibling"></td>
+            <td style="padding:4px"><input class="input" id="eoEmg1Address"></td>
+            <td style="padding:4px"><input class="input" id="eoEmg1Phone"></td>
+          </tr>
+          <tr>
+            <td style="padding:4px"><input class="input" id="eoEmg2Name"></td>
+            <td style="padding:4px"><input class="input" id="eoEmg2Rel"></td>
+            <td style="padding:4px"><input class="input" id="eoEmg2Address"></td>
+            <td style="padding:4px"><input class="input" id="eoEmg2Phone"></td>
+          </tr>
+        </tbody>
+      </table></div>
+
+      ${sec('III. Educational attainment')}
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th></th><th style="padding:0 4px 4px">Name of school</th><th style="padding:0 4px 4px">From</th><th style="padding:0 4px 4px">To</th><th style="padding:0 4px 4px">Course / Degree / Awards</th></tr></thead>
+        <tbody>${EDU_LEVELS.map(eduRow).join('')}</tbody>
+      </table></div>
+
+      ${sec('V. Family background')}
       <div class="fgrid fg2">
-        <label class="field"><span class="flabel">Mobile number</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
-        <label class="field"><span class="flabel">Email</span><input class="input" type="email" id="eoEmail"></label>
-        <label class="field span2"><span class="flabel">Address</span><input class="input" id="eoAddress"></label>
+        <label class="field"><span class="flabel">Father's name</span><input class="input" id="eoFatherName"></label>
+        <label class="field"><span class="flabel">Father's birthdate</span><input class="input" type="date" id="eoFatherBirth"></label>
+        <label class="field"><span class="flabel">Father's occupation</span><input class="input" id="eoFatherOcc"></label>
+        <label class="field"><span class="flabel">Father's company</span><input class="input" id="eoFatherCo"></label>
+        <label class="field span2"><span class="flabel">Father's home address</span><input class="input" id="eoFatherAddress"></label>
+      </div>
+      <div class="fgrid fg2" style="margin-top:8px">
+        <label class="field"><span class="flabel">Mother's maiden name</span><input class="input" id="eoMotherName"></label>
+        <label class="field"><span class="flabel">Mother's birthdate</span><input class="input" type="date" id="eoMotherBirth"></label>
+        <label class="field"><span class="flabel">Mother's occupation</span><input class="input" id="eoMotherOcc"></label>
+        <label class="field"><span class="flabel">Mother's company</span><input class="input" id="eoMotherCo"></label>
+        <label class="field span2"><span class="flabel">Mother's home address</span><input class="input" id="eoMotherAddress"></label>
       </div>
 
-      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Emergency contact</div>
-      <div class="fgrid fg2">
-        <label class="field"><span class="flabel">Name</span><input class="input" id="eoEmgName"></label>
-        <label class="field"><span class="flabel">Relationship</span><input class="input" id="eoEmgRel" placeholder="Spouse, Parent, Sibling"></label>
-        <label class="field span2"><span class="flabel">Phone</span><input class="input" id="eoEmgPhone"></label>
-      </div>
+      <div class="flabel" style="margin-top:14px">Children</div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Birthdate</th><th style="padding:0 4px 4px">Occupation</th><th style="padding:0 4px 4px">School / Company</th></tr></thead>
+        <tbody>${[1,2,3].map(i => personRow('Child', i)).join('')}</tbody>
+      </table></div>
 
-      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Education</div>
-      <div class="fgrid fg2">
-        <label class="field"><span class="flabel">Highest attainment</span>
-          <select class="input" id="eoAttainment"><option value="">—</option>${ATTAINMENT.map(a => `<option>${esc(a)}</option>`).join('')}</select></label>
-        <label class="field"><span class="flabel">School</span><input class="input" id="eoSchool"></label>
-        <label class="field"><span class="flabel">Course / Strand</span><input class="input" id="eoCourse"></label>
-        <label class="field"><span class="flabel">Year graduated</span><input class="input" id="eoGradYear" placeholder="2020"></label>
-      </div>
+      <div class="flabel" style="margin-top:14px">Brothers / sisters</div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Birthdate</th><th style="padding:0 4px 4px">Occupation</th><th style="padding:0 4px 4px">Company / School</th></tr></thead>
+        <tbody>${[1,2,3].map(i => personRow('Sibling', i)).join('')}</tbody>
+      </table></div>
 
       <div id="eoErr" class="errmsg" style="display:none;margin-top:12px"></div>
       <div style="margin-top:18px"><button class="btn primary" id="eoSubmit">${icon('check',15)} Submit</button></div>
@@ -2269,13 +2344,43 @@ function renderEmployeeOnboard(done){
       $('#eoErr').style.display = 'block';
       return;
     }
+    const v = id => ($(id) ? $(id).value.trim() : '');
+    const eduDetail = {};
+    EDU_LEVELS.forEach(level => {
+      const k = level.replace(/\s/g,'');
+      eduDetail[k] = { school:v(`#eoEdu${k}School`), from:v(`#eoEdu${k}From`), to:v(`#eoEdu${k}To`), course:v(`#eoEdu${k}Course`) };
+    });
+    const personList = (prefix, n) => Array.from({ length:n }, (_,idx) => {
+      const i = idx + 1;
+      return { name:v(`#eo${prefix}${i}Name`), birth:v(`#eo${prefix}${i}Birth`), occupation:v(`#eo${prefix}${i}Occ`), company:v(`#eo${prefix}${i}Co`) };
+    }).filter(p => p.name);
+
     MockAPI.createEmployee({
-      first, last, middle:$('#eoMiddle').value.trim(), suffix:$('#eoSuffix').value.trim(),
+      first, last, middle:$('#eoMiddle').value.trim(), suffix:'',
       sex:$('#eoSex').value, civil:$('#eoCivil').value, birth:$('#eoBirth').value, nationality:$('#eoNat').value.trim(),
       position, dept:$('#eoDept').value, branch:$('#eoBranch').value, type:$('#eoStatus').value, status:$('#eoStatus').value, hired,
       supervisor:$('#eoSupervisor').value.trim(), mobile:$('#eoMobile').value.trim(), email:$('#eoEmail').value.trim(), address:$('#eoAddress').value.trim(),
-      emgName:$('#eoEmgName').value.trim(), emgRel:$('#eoEmgRel').value.trim(), emgPhone:$('#eoEmgPhone').value.trim(),
-      attainment:$('#eoAttainment').value, school:$('#eoSchool').value.trim(), course:$('#eoCourse').value.trim(), gradYear:$('#eoGradYear').value.trim(),
+      emgName:v('#eoEmg1Name'), emgRel:v('#eoEmg1Rel'), emgPhone:v('#eoEmg1Phone'),
+      attainment:'', school:'', course:'', gradYear:'',
+      personal:{
+        nickname:v('#eoNickname'), permanentAddress:v('#eoPermAddress'), province:v('#eoProvince'),
+        yearsAtAddress:v('#eoYearsAddress'), landline:v('#eoLandline'), birthplace:v('#eoBirthplace'),
+        fbAccount:v('#eoFb'), religion:v('#eoReligion'), weddingDate:v('#eoWeddingDate'),
+        spouseName:v('#eoSpouseName'), spouseBirth:v('#eoSpouseBirth'), spouseOccupation:v('#eoSpouseOcc'),
+        numChildren:v('#eoNumChildren'), govLicense:v('#eoGovLicense'), taxStatus:v('#eoTaxStatus'),
+        sssNo:v('#eoSss'), tinNo:v('#eoTin'), pagibigNo:v('#eoPagibig'), philhealthNo:v('#eoPhilhealth'),
+      },
+      emergencyContacts:[
+        { name:v('#eoEmg1Name'), rel:v('#eoEmg1Rel'), address:v('#eoEmg1Address'), phone:v('#eoEmg1Phone') },
+        { name:v('#eoEmg2Name'), rel:v('#eoEmg2Rel'), address:v('#eoEmg2Address'), phone:v('#eoEmg2Phone') },
+      ].filter(c => c.name),
+      educationDetail:eduDetail,
+      family:{
+        father:{ name:v('#eoFatherName'), birth:v('#eoFatherBirth'), occupation:v('#eoFatherOcc'), company:v('#eoFatherCo'), address:v('#eoFatherAddress') },
+        mother:{ name:v('#eoMotherName'), birth:v('#eoMotherBirth'), occupation:v('#eoMotherOcc'), company:v('#eoMotherCo'), address:v('#eoMotherAddress') },
+        children:personList('Child', 3),
+        siblings:personList('Sibling', 3),
+      },
     });
     location.hash = '#/onboard/done';
   };
