@@ -1145,7 +1145,10 @@ const MockAPI = {
   /** Enter someone directly into the employee master — for staff already on
    *  the roster (any status), not going through the recruitment pipeline. */
   createEmployee(data){
-    const id = `EMP-2026-${String(AppState.seq.emp++).padStart(5,'0')}`;
+    // This runs from both the authenticated admin form and the anonymous
+    // public self-service link (#/onboard, many people submitting at once
+    // with no shared counter) — a random id avoids collisions either way.
+    const id = `EMP-2026-${(crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'').slice(0,8) : `${Date.now().toString(16)}${Math.floor(Math.random()*1e6).toString(16)}`)}`;
     const first = data.first.trim(), last = data.last.trim(), middle = (data.middle || '').trim();
     const name = `${first} ${last}`.trim();
     const level = data.level || 'Rank & File';

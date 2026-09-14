@@ -2164,6 +2164,123 @@ function leavePortal(){
   $('#app').classList.remove('hidden');
 }
 
+function employeeOnboardURL(){ return location.origin + location.pathname + '#/onboard'; }
+
+function employeeOnboardShell(inner){
+  return `
+  <div class="portal">
+    <header class="portal-top">
+      <img class="brand-mark" src="logo.png" alt="Art Fresh Chicken" style="height:26px" />
+      <div>
+        <div style="font-size:13.5px;font-weight:620;letter-spacing:-.012em">${esc(COMPANY.name)}</div>
+        <div style="font-size:11px;color:var(--ink-4)">Employee information form</div>
+      </div>
+      <div style="flex:1 1 auto"></div>
+      <span class="chip">${icon('users',12)} For existing staff</span>
+    </header>
+    <div class="portal-wrap">${inner}</div>
+    <div class="portal-foot">
+      ${esc(COMPANY.name)} · This link is shared — each person fills it out once for themselves.
+    </div>
+  </div>`;
+}
+
+function renderEmployeeOnboard(done){
+  const root = $('#portalRoot');
+  $('#app').classList.add('hidden');
+  root.classList.remove('hidden');
+  document.body.style.overflow = '';
+
+  if (done){
+    root.innerHTML = employeeOnboardShell(`
+      <div class="portal-card" style="text-align:center;padding:34px 26px">
+        <div class="success-mark" style="margin:0 auto 14px">${icon('check',24)}</div>
+        <h1 class="portal-h1">Submitted</h1>
+        <p class="portal-lead" style="margin:6px auto 0">Thank you. Your information has been added to the employee records.</p>
+        <div style="margin-top:20px"><button class="btn" data-onboard-again>${icon('userplus',15)} Add another person</button></div>
+      </div>`);
+    $('[data-onboard-again]').onclick = () => { location.hash = '#/onboard'; };
+    return;
+  }
+
+  root.innerHTML = employeeOnboardShell(`
+    <div class="portal-card">
+      <h1 class="portal-h1">Employee information form</h1>
+      <p class="portal-lead">Please complete your details below. This adds you directly to the ${esc(COMPANY.name)} employee records — no login needed. Submit once for yourself.</p>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Personal</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">First name *</span><input class="input" id="eoFirst"></label>
+        <label class="field"><span class="flabel">Last name *</span><input class="input" id="eoLast"></label>
+        <label class="field"><span class="flabel">Middle name</span><input class="input" id="eoMiddle"></label>
+        <label class="field"><span class="flabel">Suffix</span><input class="input" id="eoSuffix" placeholder="Jr., III, etc."></label>
+        <label class="field"><span class="flabel">Sex</span><select class="input" id="eoSex"><option>Male</option><option>Female</option></select></label>
+        <label class="field"><span class="flabel">Civil status</span>
+          <select class="input" id="eoCivil"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
+        <label class="field"><span class="flabel">Birth date</span><input class="input" type="date" id="eoBirth"></label>
+        <label class="field"><span class="flabel">Nationality</span><input class="input" id="eoNat" value="Filipino"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Employment</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Department *</span>
+          <select class="input" id="eoDept">${DEPARTMENTS.map(d => `<option value="${esc(d.code)}">${esc(d.name)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Position *</span><input class="input" id="eoPosition" placeholder="Your exact job title"></label>
+        <label class="field"><span class="flabel">Branch *</span>
+          <select class="input" id="eoBranch">${BRANCHES.map(b => `<option value="${esc(b.code)}">${esc(b.name)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Status</span>
+          <select class="input" id="eoStatus">${EMPLOYMENT_STATUSES.map(s => `<option>${esc(s)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">Date hired *</span><input class="input" type="date" id="eoHired"></label>
+        <label class="field"><span class="flabel">Immediate supervisor</span><input class="input" id="eoSupervisor"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Contact</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Mobile number</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
+        <label class="field"><span class="flabel">Email</span><input class="input" type="email" id="eoEmail"></label>
+        <label class="field span2"><span class="flabel">Address</span><input class="input" id="eoAddress"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Emergency contact</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Name</span><input class="input" id="eoEmgName"></label>
+        <label class="field"><span class="flabel">Relationship</span><input class="input" id="eoEmgRel" placeholder="Spouse, Parent, Sibling"></label>
+        <label class="field span2"><span class="flabel">Phone</span><input class="input" id="eoEmgPhone"></label>
+      </div>
+
+      <div style="font-size:11px;font-weight:650;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 8px">Education</div>
+      <div class="fgrid fg2">
+        <label class="field"><span class="flabel">Highest attainment</span>
+          <select class="input" id="eoAttainment"><option value="">—</option>${ATTAINMENT.map(a => `<option>${esc(a)}</option>`).join('')}</select></label>
+        <label class="field"><span class="flabel">School</span><input class="input" id="eoSchool"></label>
+        <label class="field"><span class="flabel">Course / Strand</span><input class="input" id="eoCourse"></label>
+        <label class="field"><span class="flabel">Year graduated</span><input class="input" id="eoGradYear" placeholder="2020"></label>
+      </div>
+
+      <div id="eoErr" class="errmsg" style="display:none;margin-top:12px"></div>
+      <div style="margin-top:18px"><button class="btn primary" id="eoSubmit">${icon('check',15)} Submit</button></div>
+    </div>`);
+
+  $('#eoSubmit').onclick = () => {
+    const first = $('#eoFirst').value.trim(), last = $('#eoLast').value.trim();
+    const position = $('#eoPosition').value.trim(), hired = $('#eoHired').value;
+    if (!first || !last || !position || !hired){
+      $('#eoErr').textContent = 'First name, last name, position, and date hired are required.';
+      $('#eoErr').style.display = 'block';
+      return;
+    }
+    MockAPI.createEmployee({
+      first, last, middle:$('#eoMiddle').value.trim(), suffix:$('#eoSuffix').value.trim(),
+      sex:$('#eoSex').value, civil:$('#eoCivil').value, birth:$('#eoBirth').value, nationality:$('#eoNat').value.trim(),
+      position, dept:$('#eoDept').value, branch:$('#eoBranch').value, type:$('#eoStatus').value, status:$('#eoStatus').value, hired,
+      supervisor:$('#eoSupervisor').value.trim(), mobile:$('#eoMobile').value.trim(), email:$('#eoEmail').value.trim(), address:$('#eoAddress').value.trim(),
+      emgName:$('#eoEmgName').value.trim(), emgRel:$('#eoEmgRel').value.trim(), emgPhone:$('#eoEmgPhone').value.trim(),
+      attainment:$('#eoAttainment').value, school:$('#eoSchool').value.trim(), course:$('#eoCourse').value.trim(), gradYear:$('#eoGradYear').value.trim(),
+    });
+    location.hash = '#/onboard/done';
+  };
+}
+
 /* ---------------------------------------------------------------------------
    20. VIEWS — EMPLOYEE MASTER + PROFILE
    --------------------------------------------------------------------------- */
@@ -2207,8 +2324,26 @@ function viewEmployees(){
     <div style="margin-top:14px">${t.html()}</div>`;
   return page('Employee master', 'People hired through the pipeline appear here automatically — add anyone else directly.', `
     <button class="btn" data-action="export">${icon('download',15)} Export</button>
+    <button class="btn" data-action="onboard-link">${icon('qr',15)} Self-service link / QR</button>
     <button class="btn" data-action="add-employee">${icon('userplus',15)} Add employee</button>
     <button class="btn primary" data-goto="#/recruitment/preemployment">${icon('userplus',15)} Hire from pipeline</button>`, body);
+}
+function showEmployeeOnboardLink(){
+  const url = employeeOnboardURL();
+  openModal(`
+    <div class="modal-head"><div style="flex:1 1 auto">
+      <div class="card-title">Self-service employee form</div>
+      <div class="card-sub">Share this link or QR code — anyone can open it and fill in their own details. No login needed, and multiple people can use it at the same time.</div></div>
+      <button class="icon-btn" data-close-modal>${icon('close',16)}</button></div>
+    <div class="modal-body" style="text-align:center">
+      <div class="qr-frame" style="display:inline-block">${QR.svg(url, 220, 4)}</div>
+      <div class="flabel" style="margin-top:16px;text-align:left">Link</div>
+      <div class="linkbox" style="text-align:left"><code>${esc(url)}</code></div>
+      <div class="row" style="margin-top:10px;justify-content:center">
+        <button class="btn sm" data-copy="${esc(url)}">${icon('copy',14)} Copy link</button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn primary" data-close-modal>Done</button></div>`, { lg:false });
 }
 
 const EMP_TABS = ['Overview','Employment','Compensation','Attendance','Leave','Performance','Training','Documents','Movement','Relations','Activity'];
@@ -3810,6 +3945,11 @@ function router(){
     renderPortal(hash.replace('#/apply/',''));
     return;
   }
+  if (hash === '#/onboard' || hash === '#/onboard/done'){
+    closeDrawer(); closeModal();
+    renderEmployeeOnboard(hash === '#/onboard/done');
+    return;
+  }
   leavePortal();
 
   let html;
@@ -3985,6 +4125,7 @@ document.addEventListener('click', e => {
       case 'file-leave': formFileLeave(); return;
       case 'new-case': formCase(); return;
       case 'add-employee': formAddEmployee(); return;
+      case 'onboard-link': showEmployeeOnboardLink(); return;
       case 'export': toast('Export queued', 'In production this generates an Excel or PDF file.'); return;
     }
   }
@@ -4471,6 +4612,13 @@ async function boot(){
 
   if (location.hash.startsWith('#/apply/')){
     await bootPortal();
+    return;
+  }
+  if (location.hash === '#/onboard' || location.hash === '#/onboard/done'){
+    AppState.currentUser = { name:'Self-service form', role:'', roleName:'', initials:'SF' };
+    $('#bootLoading').classList.add('hidden');
+    window.addEventListener('hashchange', router);
+    router();
     return;
   }
 

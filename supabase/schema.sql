@@ -121,6 +121,13 @@ drop policy if exists "public can submit applications" on public.applicants;
 create policy "public can submit applications" on public.applicants
   for insert to anon with check (true);
 
+-- Employee self-service form (#/onboard) — a single shared link, no invitation
+-- token, so anon only ever gets INSERT here, never SELECT/UPDATE/DELETE.
+grant insert on public.employees to anon;
+drop policy if exists "public can submit employee info" on public.employees;
+create policy "public can submit employee info" on public.employees
+  for insert to anon with check (true);
+
 drop policy if exists "user can view own profile" on public.profiles;
 create policy "user can view own profile" on public.profiles
   for select to authenticated using (auth.uid() = id);
