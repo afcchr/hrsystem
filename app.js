@@ -556,11 +556,21 @@ function kv(pairs){
 /* ---------------------------------------------------------------------------
    12. VIEW — HR DASHBOARD
    --------------------------------------------------------------------------- */
-const YTD_FUNNEL = [
-  { label:'Invited', value:1250 }, { label:'Started', value:1080 }, { label:'Submitted', value:920 },
-  { label:'Shortlisted', value:320 }, { label:'Interviewed', value:180 }, { label:'Selected', value:72 },
-  { label:'Hired', value:61 },
-];
+/** Recruitment funnel from real records, filed since Jan 1 of the current year. */
+function ytdFunnel(){
+  const yearStart = `${TODAY.getFullYear()}-01-01`;
+  const invYTD = AppState.invitations.filter(i => i.created >= yearStart);
+  const appYTD = AppState.applicants.filter(a => a.applied >= yearStart);
+  return [
+    { label:'Invited', value: invYTD.length },
+    { label:'Started', value: invYTD.filter(i => ['Opened','Submitted'].includes(i.status)).length },
+    { label:'Submitted', value: invYTD.filter(i => i.status === 'Submitted').length },
+    { label:'Shortlisted', value: appYTD.filter(a => STAGE_ORDER(a.stage) >= STAGE_ORDER('Shortlisted') && !TERMINAL.includes(a.stage)).length },
+    { label:'Interviewed', value: appYTD.filter(a => a.interviews.some(i => i.status === 'Completed')).length },
+    { label:'Selected', value: appYTD.filter(a => STAGE_ORDER(a.stage) >= STAGE_ORDER('Selected') && !TERMINAL.includes(a.stage)).length },
+    { label:'Hired', value: appYTD.filter(a => a.stage === 'Hired').length },
+  ];
+}
 /** Active headcount as it stood on a given date. */
 function headcountAsOf(dateStr){
   return AppState.employees.filter(e =>
@@ -658,7 +668,7 @@ function viewDashboard(){
       `<div style="margin-bottom:6px">${barChart(pipeline.map(p => ({ label:p.label, short:p.label.split(' ')[0], value:p.value })), { h:180 })}</div>
        <div class="divider"></div>
        <div class="subhead">Year to date</div>
-       ${funnel(YTD_FUNNEL)}`)}
+       ${funnel(ytdFunnel())}`)}
     ${card('HR tasks','What needs attention today','', `
       <div>${hrTasks().map(t => `
         <button class="checklist-item" style="width:100%;text-align:left" data-goto="${t.route}">
@@ -3538,7 +3548,7 @@ function reportContent(){
 
     case 'Recruitment': return `
       <div class="grid g-2-1" style="align-items:start">
-        ${card('Recruitment funnel','Year to date','', funnel(YTD_FUNNEL))}
+        ${card('Recruitment funnel','Year to date','', funnel(ytdFunnel()))}
         ${card('Source of applicants','How applicants heard about the opening','', hbars(
           [...new Set(AppState.applicants.map(a => a.answers.source))].filter(Boolean).map(s => ({
             label:s, value:AppState.applicants.filter(a => a.answers.source === s).length })).sort((a,b) => b.value - a.value)))}
