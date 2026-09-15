@@ -598,6 +598,7 @@ function buildTimeline(a){
    --------------------------------------------------------------------------- */
 const AppState = {
   currentUser:{ name:'Maria Reyes', role:'HRMGR', roleName:'HR Manager', initials:'MR' },
+  users:[],
   employees:[], applicants:[], invitations:[], leave:[], performance:[], trainings:[],
   trainingSessions:[], cases:[], movements:[], offboarding:[], onboarding:[],
   attendanceOverrides:{}, corrections:[], notifications:[], audit:[], tasks:[],
@@ -1350,6 +1351,12 @@ const Auth = {
     if (error){ console.error('[Supabase] profile fetch failed', error); return null; }
     return data;
   },
+  // The full staff directory shown on Administration > Users & roles.
+  async listProfiles(){
+    const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending:true });
+    if (error){ console.error('[Supabase] profiles list failed', error); return []; }
+    return data || [];
+  },
 };
 
 function applyProfile(profile, email){
@@ -1392,6 +1399,8 @@ async function seedDatabaseIfEmpty(){
 
 /** Hydrate AppState from Supabase (normal boot path, after the first seed). */
 async function loadAppStateFromDB(){
+  AppState.users = await Auth.listProfiles();
+
   const docEntries = Object.entries(DOC_TABLES);
   const docResults = await Promise.all(docEntries.map(([, table]) => Store.fetchAll(table)));
   docEntries.forEach(([key], i) => { AppState[key] = docResults[i].map(row => row.data); });

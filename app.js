@@ -3775,23 +3775,14 @@ function viewAdminMaster(){
 }
 
 function viewAdminRoles(){
-  const users = [
-    { name:'Maria Reyes', role:'HRMGR', dept:'HRD', last:'Today, 08:02' },
-    { name:'Angeline Cabrera', role:'RECR', dept:'HRD', last:'Today, 09:20' },
-    { name:'Rico Bernardo', role:'RECR', dept:'HRD', last:'Yesterday, 16:44' },
-    { name:'Katrina Espino', role:'HROFF', dept:'HRD', last:'Today, 07:51' },
-    { name:'Jocelyn Navarro', role:'ADMIN', dept:'ADM', last:'Today, 08:30' },
-    { name:'Cristina Aquino', role:'PAYRL', dept:'FIN', last:'Yesterday, 17:12' },
-    { name:'Rolando Ocampo', role:'SUPV', dept:'PRD', last:'Today, 06:15' },
-    { name:'Vicente Yatco', role:'MGMT', dept:'MGT', last:'Sep 4, 2026' },
-  ];
+  const users = AppState.users || [];
   const body = `
     <div class="grid g-2-1" style="align-items:start">
-      ${card('System users', `${users.length} accounts`, '', `
-        <table class="data"><thead><tr><th>User</th><th>Role</th><th>Department</th><th>Last active</th></tr></thead>
-        <tbody>${users.map(u => `<tr><td>${personCell(u.name, '')}</td>
-          <td><b style="font-weight:550;color:var(--ink)">${esc((ROLES.find(r => r.code === u.role)||{}).name)}</b></td>
-          <td class="muted">${esc(deptName(u.dept))}</td><td class="muted">${esc(u.last)}</td></tr>`).join('')}</tbody></table>`)}
+      ${card('System users', `${users.length} account${users.length===1?'':'s'}`, '', `
+        <table class="data"><thead><tr><th>User</th><th>Role</th><th>Member since</th></tr></thead>
+        <tbody>${users.map(u => `<tr><td>${personCell(u.name || u.email, u.email)}</td>
+          <td><b style="font-weight:550;color:var(--ink)">${esc((ROLES.find(r => r.code === u.role)||{}).name || u.role || '—')}</b></td>
+          <td class="muted">${u.created_at ? fmtDate(u.created_at.slice(0,10)) : '—'}</td></tr>`).join('')}</tbody></table>`)}
       ${card('Roles','Nine defined roles','', `
         <div>${ROLES.map(r => `
           <div class="note-item"><div class="note-head"><b style="color:var(--ink);font-weight:600">${esc(r.name)}</b>

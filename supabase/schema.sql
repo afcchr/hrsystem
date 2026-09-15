@@ -128,9 +128,13 @@ drop policy if exists "public can submit employee info" on public.employees;
 create policy "public can submit employee info" on public.employees
   for insert to anon with check (true);
 
+-- Any signed-in staff member can see the whole staff directory (Administration
+-- > Users & roles lists every account) — but only edit their own row, per the
+-- update policy below.
 drop policy if exists "user can view own profile" on public.profiles;
-create policy "user can view own profile" on public.profiles
-  for select to authenticated using (auth.uid() = id);
+drop policy if exists "staff can view all profiles" on public.profiles;
+create policy "staff can view all profiles" on public.profiles
+  for select to authenticated using (true);
 
 drop policy if exists "user can update own profile" on public.profiles;
 create policy "user can update own profile" on public.profiles
