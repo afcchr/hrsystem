@@ -217,7 +217,7 @@ function makeEmployee(seqYear, seq, dept, position, branch, opts){
   const p = posByTitle(position);
   const salary = opts.salary || Math.round((p.min + rnd() * (p.max - p.min)) / 500) * 500;
   const branchCode = branch || pick(BRANCHES).code;
-  const shift = opts.shift || (['PRD','PRC','WHS'].includes(dept) ? pick(['MRN','MID','NGT']) : (['DLV','LOG'].includes(dept) ? pick(['MRN','MID']) : 'OFC'));
+  const shift = opts.shift || (['BRL','DRP','WHS'].includes(dept) ? pick(['MRN','MID','NGT']) : (['TRN','LOG'].includes(dept) ? pick(['MRN','MID']) : 'OFC'));
   const birthYear = 2026 - rint(21, 54);
   return {
     id: `EMP-${seqYear}-${String(seq).padStart(5,'0')}`,
@@ -237,7 +237,7 @@ function makeEmployee(seqYear, seq, dept, position, branch, opts){
     salary,
     allowances: [
       { name:'Meal allowance', amount: 2000 },
-      { name:'Transportation', amount: dept === 'DLV' || dept === 'LOG' ? 2500 : 1500 },
+      { name:'Transportation', amount: dept === 'TRN' || dept === 'LOG' ? 2500 : 1500 },
       ...(p.level !== 'Rank & File' ? [{ name:'Communication', amount: 1200 }] : []),
     ],
     shift, restDay: pick(['Sunday','Sunday','Saturday','Monday','Wednesday']),
@@ -252,17 +252,18 @@ function generateEmployees(){
   let counters = {};
   const nextId = (year) => { counters[year] = (counters[year] || 0) + 1; return counters[year]; };
   const roster = [
-    // dept, [position, count] ...
-    ['PRD', [['Production Worker',96],['Production Line Leader',9],['Quality Control Inspector',11],['Production Supervisor',5]]],
-    ['PRC', [['Dressing Line Operator',48],['Chiller Attendant',14],['Processing Supervisor',4]]],
+    // dept, [position, count] ... — dept codes must match DEPARTMENTS above,
+    // or deptCounts()/Workforce overview silently drops those employees.
+    ['BRL', [['Production Worker',96],['Production Line Leader',9],['Quality Control Inspector',11],['Production Supervisor',5]]],
+    ['DRP', [['Dressing Line Operator',48],['Chiller Attendant',14],['Processing Supervisor',4]]],
     ['WHS', [['Warehouse Staff',26],['Inventory Clerk',9],['Warehouse Supervisor',3]]],
     ['LOG', [['Logistics Coordinator',12],['Fleet Maintenance Staff',9]]],
-    ['DLV', [['Delivery Driver',20],['Delivery Helper',18]]],
+    ['TRN', [['Delivery Driver',20],['Delivery Helper',18]]],
     ['SLS', [['Sales Representative',22],['Key Accounts Officer',6]]],
-    ['PUR', [['Purchasing Assistant',9]]],
+    ['PCM', [['Purchasing Assistant',9]]],
     ['FIN', [['Accounting Assistant',9],['Finance Officer',4]]],
-    ['HRD', [['HR Assistant',4],['HR Officer',3],['Recruitment Officer',2]]],
-    ['ADM', [['Administrative Assistant',8],['Security Coordinator',4]]],
+    ['HRA', [['HR Assistant',4],['HR Officer',3],['Recruitment Officer',2]]],
+    ['GAD', [['Administrative Assistant',8],['Security Coordinator',4]]],
     ['MGT', [['Department Manager',8]]],
   ];
   roster.forEach(([dept, groups]) => {
