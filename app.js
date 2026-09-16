@@ -519,9 +519,14 @@ function renderCrumbs(extra, baseOverride){
 }
 
 /* page scaffold */
+function pageKicker(){
+  const section = (CRUMB_MAP[location.hash] || ['Dashboard'])[0];
+  return `<span class="page-kicker">${esc(COMPANY.short)} · ${esc(section)}</span>`;
+}
 function page(title, sub, actions, body){
   return `<div class="page-head">
       <div style="min-width:0">
+        ${pageKicker()}
         <h1 class="page-title">${esc(title)}</h1>
         ${sub ? `<div class="page-sub">${sub}</div>` : ''}
       </div>
@@ -700,6 +705,7 @@ function viewDashboard(){
 
   return `<div class="page-head">
       <div style="min-width:0">
+        ${pageKicker()}
         <h1 class="page-title">${esc(dashboardGreeting())} <span class="greet-moon-wrap">
           <span class="greet-moon" id="greetMoon" role="button" tabindex="0" data-tip="Click me">${greetingEmoji()}</span>
           <span class="moon-cloud" id="moonCloud"><span id="moonCloudText"></span><span class="moon-cloud-tail"></span></span>
