@@ -2255,10 +2255,6 @@ function renderEmployeeOnboard(done){
       <h1 class="portal-h1">Employee information form</h1>
       <p class="portal-lead">Please complete your details below. This adds you directly to the ${esc(COMPANY.name)} employee records — no login needed. Submit once for yourself.</p>
 
-      <div class="portal-steps" id="eoSteps">
-        ${EO_STEPS.map((label,i) => `<button type="button" class="pstep" data-eo-step="${i}"><b>${esc(label)}</b>Step ${i+1} of ${EO_STEPS.length}</button>`).join('')}
-      </div>
-
       <div class="eo-step" data-eo-panel="0">
       ${sec('I. Personal data')}
       <div class="fgrid fg2">
@@ -2417,18 +2413,15 @@ function renderEmployeeOnboard(done){
 
   let eoStep = 0;
   const eoPanels = Array.from(root.querySelectorAll('[data-eo-panel]'));
-  const eoStepBtns = Array.from(root.querySelectorAll('#eoSteps [data-eo-step]'));
   function showEoStep(n){
     eoStep = Math.max(0, Math.min(EO_STEPS.length - 1, n));
     eoPanels.forEach(p => { p.style.display = Number(p.dataset.eoPanel) === eoStep ? '' : 'none'; });
-    eoStepBtns.forEach((b,i) => { b.classList.toggle('on', i === eoStep); b.classList.toggle('done', i < eoStep); });
     $('#eoBack').style.visibility = eoStep === 0 ? 'hidden' : 'visible';
     $('#eoNext').style.display = eoStep === EO_STEPS.length - 1 ? 'none' : '';
     $('#eoSubmit').style.display = eoStep === EO_STEPS.length - 1 ? '' : 'none';
     $('#eoErr').style.display = 'none';
     const wrap = root.querySelector('.portal-wrap'); if (wrap) wrap.scrollIntoView({ block:'start' });
   }
-  eoStepBtns.forEach((b,i) => b.onclick = () => showEoStep(i));
   $('#eoBack').onclick = () => showEoStep(eoStep - 1);
   $('#eoNext').onclick = () => {
     if (eoStep === 0){
