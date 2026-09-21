@@ -2342,7 +2342,8 @@ function renderEmployeeOnboard(done){
       </div>
 
       <div class="eo-step" data-eo-panel="3">
-      ${sec('II. In case of emergency')}
+      ${sec('In case of emergency')}
+      <div class="hint" style="margin-bottom:6px">At least one emergency contact is required.</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
         <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Relationship</th><th style="padding:0 4px 4px">Address</th><th style="padding:0 4px 4px">Contact no.</th></tr></thead>
         <tbody>
@@ -2449,6 +2450,17 @@ function renderEmployeeOnboard(done){
       const position = $('#eoPosition').value.trim(), hired = $('#eoHired').value;
       if (!position || !hired){
         $('#eoErr').textContent = 'Position and date hired are required.';
+        $('#eoErr').style.display = 'block';
+        return;
+      }
+    }
+    if (eoStep === 3){
+      const emgRequired = [
+        ['#eoEmg1Name','Name'], ['#eoEmg1Rel','Relationship'], ['#eoEmg1Address','Address'], ['#eoEmg1Phone','Contact no.'],
+      ];
+      const emgMissing = emgRequired.filter(([id]) => !$(id).value.trim());
+      if (emgMissing.length){
+        $('#eoErr').textContent = `At least one emergency contact is required — missing: ${emgMissing.map(([,label]) => label).join(', ')}.`;
         $('#eoErr').style.display = 'block';
         return;
       }
