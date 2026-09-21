@@ -2248,11 +2248,18 @@ function renderEmployeeOnboard(done){
     </div>
     ${g.other ? `<div class="field" style="margin-top:10px;max-width:360px"><span class="flabel">Others: please specify</span><input class="input" id="eoLic_${g.key}_other"></div>` : ''}`;
 
+  const EO_STEPS = ['Personal','Licenses','Employment','Emergency contacts','Education','Family background'];
+
   root.innerHTML = employeeOnboardShell(`
     <div class="portal-card">
       <h1 class="portal-h1">Employee information form</h1>
       <p class="portal-lead">Please complete your details below. This adds you directly to the ${esc(COMPANY.name)} employee records — no login needed. Submit once for yourself.</p>
 
+      <div class="portal-steps" id="eoSteps">
+        ${EO_STEPS.map((label,i) => `<button type="button" class="pstep" data-eo-step="${i}"><b>${esc(label)}</b>Step ${i+1} of ${EO_STEPS.length}</button>`).join('')}
+      </div>
+
+      <div class="eo-step" data-eo-panel="0">
       ${sec('I. Personal data')}
       <div class="fgrid fg2">
         <label class="field"><span class="flabel">Last name *</span><input class="input" id="eoLast"></label>
@@ -2313,9 +2320,14 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">PhilHealth no.</span><input class="input" id="eoPhilhealth"></label>
       </div>
 
+      </div>
+
+      <div class="eo-step" data-eo-panel="1">
       ${sec('Licenses & certifications')}
       ${LICENSE_GROUPS.map(licenseGroup).join('')}
+      </div>
 
+      <div class="eo-step" data-eo-panel="2">
       ${sec('Employment')}
       <div class="fgrid fg2">
         <label class="field"><span class="flabel">Department *</span>
@@ -2331,6 +2343,9 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">Immediate supervisor</span><input class="input" id="eoSupervisor"></label>
       </div>
 
+      </div>
+
+      <div class="eo-step" data-eo-panel="3">
       ${sec('II. In case of emergency')}
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
         <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Relationship</th><th style="padding:0 4px 4px">Address</th><th style="padding:0 4px 4px">Contact no.</th></tr></thead>
@@ -2350,12 +2365,18 @@ function renderEmployeeOnboard(done){
         </tbody>
       </table></div>
 
+      </div>
+
+      <div class="eo-step" data-eo-panel="4">
       ${sec('III. Educational attainment')}
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
         <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th></th><th style="padding:0 4px 4px">Name of school</th><th style="padding:0 4px 4px">From</th><th style="padding:0 4px 4px">To</th><th style="padding:0 4px 4px">Course / Degree / Awards</th></tr></thead>
         <tbody>${EDU_LEVELS.map(eduRow).join('')}</tbody>
       </table></div>
 
+      </div>
+
+      <div class="eo-step" data-eo-panel="5">
       ${sec('V. Family background')}
       <div class="fgrid fg2">
         <label class="field"><span class="flabel">Father's name</span><input class="input" id="eoFatherName"></label>
@@ -2384,9 +2405,51 @@ function renderEmployeeOnboard(done){
         <tbody>${[1,2,3].map(i => personRow('Sibling', i)).join('')}</tbody>
       </table></div>
 
-      <div id="eoErr" class="errmsg" style="display:none;margin-top:12px"></div>
-      <div style="margin-top:18px"><button class="btn primary" id="eoSubmit">${icon('check',15)} Submit</button></div>
+      </div>
+
+      <div id="eoErr" class="errmsg" style="display:none;margin-top:18px"></div>
+      <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-soft)">
+        <button type="button" class="btn" id="eoBack">Back</button>
+        <button type="button" class="btn primary" id="eoNext">Next ${icon('arrowright',15)}</button>
+        <button type="button" class="btn primary" id="eoSubmit" style="display:none">${icon('check',15)} Submit</button>
+      </div>
     </div>`);
+
+  let eoStep = 0;
+  const eoPanels = Array.from(root.querySelectorAll('[data-eo-panel]'));
+  const eoStepBtns = Array.from(root.querySelectorAll('#eoSteps [data-eo-step]'));
+  function showEoStep(n){
+    eoStep = Math.max(0, Math.min(EO_STEPS.length - 1, n));
+    eoPanels.forEach(p => { p.style.display = Number(p.dataset.eoPanel) === eoStep ? '' : 'none'; });
+    eoStepBtns.forEach((b,i) => { b.classList.toggle('on', i === eoStep); b.classList.toggle('done', i < eoStep); });
+    $('#eoBack').style.visibility = eoStep === 0 ? 'hidden' : 'visible';
+    $('#eoNext').style.display = eoStep === EO_STEPS.length - 1 ? 'none' : '';
+    $('#eoSubmit').style.display = eoStep === EO_STEPS.length - 1 ? '' : 'none';
+    $('#eoErr').style.display = 'none';
+    const wrap = root.querySelector('.portal-wrap'); if (wrap) wrap.scrollIntoView({ block:'start' });
+  }
+  eoStepBtns.forEach((b,i) => b.onclick = () => showEoStep(i));
+  $('#eoBack').onclick = () => showEoStep(eoStep - 1);
+  $('#eoNext').onclick = () => {
+    if (eoStep === 0){
+      const first = $('#eoFirst').value.trim(), last = $('#eoLast').value.trim();
+      if (!first || !last){
+        $('#eoErr').textContent = 'First name and last name are required.';
+        $('#eoErr').style.display = 'block';
+        return;
+      }
+    }
+    if (eoStep === 2){
+      const position = $('#eoPosition').value.trim(), hired = $('#eoHired').value;
+      if (!position || !hired){
+        $('#eoErr').textContent = 'Position and date hired are required.';
+        $('#eoErr').style.display = 'block';
+        return;
+      }
+    }
+    showEoStep(eoStep + 1);
+  };
+  showEoStep(0);
 
   $('#eoBranch').onchange = () => { $('#eoStoreRow').style.display = $('#eoBranch').value === 'STR' ? '' : 'none'; };
   $('#eoSameAddress').onchange = e => { $('#eoPermAddressBlock').style.display = e.target.checked ? 'none' : ''; };
