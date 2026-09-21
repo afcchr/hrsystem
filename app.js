@@ -2224,12 +2224,27 @@ function renderEmployeeOnboard(done){
       <td style="padding:4px"><input class="input" id="eoEdu${k}Course" placeholder="Course / Degree / Awards"></td>
     </tr>`; };
   const personRow = (prefix, i) => `
-    <tr>
+    <tr data-person-row="${prefix}${i}" style="${i>1?'display:none':''}">
       <td style="padding:4px"><input class="input" id="eo${prefix}${i}Name" placeholder="Name"></td>
       <td style="padding:4px;width:130px"><input class="input" type="date" id="eo${prefix}${i}Birth"></td>
       <td style="padding:4px"><input class="input" id="eo${prefix}${i}Occ" placeholder="Occupation"></td>
       <td style="padding:4px"><input class="input" id="eo${prefix}${i}Co" placeholder="${prefix==='Child'?'School':'Company'}"></td>
     </tr>`;
+  const familyGroup = (prefix, title, headers) => `
+    <div class="flabel" style="margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span>${esc(title)}</span>
+      <div class="seg" id="eo${prefix}Applic">
+        <button type="button" class="on" data-val="no">Not applicable</button>
+        <button type="button" data-val="yes">Applicable</button>
+      </div>
+    </div>
+    <div id="eo${prefix}Wrap" style="display:none;margin-top:8px">
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left">${headers.map(h => `<th style="padding:0 4px 4px">${esc(h)}</th>`).join('')}</tr></thead>
+        <tbody>${[1,2,3].map(i => personRow(prefix, i)).join('')}</tbody>
+      </table></div>
+      <button type="button" class="btn sm" id="eo${prefix}Add" style="margin-top:8px">${icon('plus',13)} Add another</button>
+    </div>`;
   const LICENSE_GROUPS = [
     { key:'professional', label:'1. Professional licenses', items:['PRC License','CPA','Engineer','Nurse','Teacher','Architect'], other:true },
     { key:'skills', label:'2. Skills certifications', items:['TESDA NC','TESDA COC','Safety certifications','Technical certifications'] },
@@ -2390,17 +2405,9 @@ function renderEmployeeOnboard(done){
         <label class="field span2"><span class="flabel">Mother's home address</span><input class="input" id="eoMotherAddress"></label>
       </div>
 
-      <div class="flabel" style="margin-top:14px">Children</div>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
-        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Birthdate</th><th style="padding:0 4px 4px">Occupation</th><th style="padding:0 4px 4px">School / Company</th></tr></thead>
-        <tbody>${[1,2,3].map(i => personRow('Child', i)).join('')}</tbody>
-      </table></div>
+      ${familyGroup('Child', 'Children', ['Name','Birthdate','Occupation','School / Company'])}
 
-      <div class="flabel" style="margin-top:14px">Brothers / sisters</div>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
-        <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th style="padding:0 4px 4px">Name</th><th style="padding:0 4px 4px">Birthdate</th><th style="padding:0 4px 4px">Occupation</th><th style="padding:0 4px 4px">Company / School</th></tr></thead>
-        <tbody>${[1,2,3].map(i => personRow('Sibling', i)).join('')}</tbody>
-      </table></div>
+      ${familyGroup('Sibling', 'Brothers / sisters', ['Name','Birthdate','Occupation','Company / School'])}
 
       </div>
 
@@ -2480,6 +2487,27 @@ function renderEmployeeOnboard(done){
       const cb = $(`#eoLic_${g.key}_${i}`), no = $(`#eoLic_${g.key}_${i}_no`);
       cb.onchange = () => { no.style.display = cb.checked ? '' : 'none'; if (!cb.checked) no.value = ''; };
     });
+  });
+  ['Child','Sibling'].forEach(prefix => {
+    const wrap = $(`#eo${prefix}Wrap`), toggle = $(`#eo${prefix}Applic`), addBtn = $(`#eo${prefix}Add`);
+    const rows = () => Array.from(root.querySelectorAll(`tr[data-person-row^="${prefix}"]`));
+    const visibleCount = () => rows().filter(tr => tr.style.display !== 'none').length;
+    toggle.querySelectorAll('button').forEach(b => b.onclick = () => {
+      toggle.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const yes = b.dataset.val === 'yes';
+      wrap.style.display = yes ? '' : 'none';
+      rows().forEach((tr,i) => {
+        if (!yes) tr.querySelectorAll('input').forEach(inp => inp.value = '');
+        tr.style.display = (yes && i === 0) ? '' : 'none';
+      });
+      addBtn.style.display = visibleCount() >= 3 ? 'none' : '';
+    });
+    addBtn.onclick = () => {
+      const hidden = rows().find(tr => tr.style.display === 'none');
+      if (hidden) hidden.style.display = '';
+      if (visibleCount() >= 3) addBtn.style.display = 'none';
+    };
   });
 
   $('#eoSubmit').onclick = () => {
