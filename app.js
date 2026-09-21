@@ -2262,7 +2262,7 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">First name *</span><input class="input" id="eoFirst"></label>
         <label class="field"><span class="flabel">Middle name</span><input class="input" id="eoMiddle"></label>
         <label class="field"><span class="flabel">Nickname</span><input class="input" id="eoNickname"></label>
-        <label class="field"><span class="flabel">Mobile no. *</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
+        <label class="field"><span class="flabel">Mobile no. *</span><input class="input" id="eoMobile" placeholder="0917 000 0000" inputmode="numeric" maxlength="13"></label>
         <label class="field"><span class="flabel">Landline no.</span><input class="input" id="eoLandline"></label>
         <label class="field"><span class="flabel">Birth date *</span><input class="input" type="date" id="eoBirth"></label>
         <label class="field"><span class="flabel">Birthplace *</span><input class="input" id="eoBirthplace"></label>
@@ -2434,6 +2434,12 @@ function renderEmployeeOnboard(done){
       const missing = required.filter(([id]) => !$(id).value.trim());
       if (missing.length){
         $('#eoErr').textContent = `Required: ${missing.map(([,label]) => label).join(', ')}.`;
+        $('#eoErr').style.display = 'block';
+        return;
+      }
+      const mobileDigits = $('#eoMobile').value.replace(/\D/g,'');
+      if (mobileDigits.length !== 11){
+        $('#eoErr').textContent = `Mobile no. must be exactly 11 digits (e.g. 09171234567) — you entered ${mobileDigits.length}.`;
         $('#eoErr').style.display = 'block';
         return;
       }
