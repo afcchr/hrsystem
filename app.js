@@ -2269,7 +2269,6 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">Nationality</span><input class="input" id="eoNat" value="Filipino"></label>
         <label class="field"><span class="flabel">Sex</span><select class="input" id="eoSex"><option>Male</option><option>Female</option></select></label>
         <label class="field"><span class="flabel">Email address</span><input class="input" type="email" id="eoEmail"></label>
-        <label class="field"><span class="flabel">Facebook account</span><input class="input" id="eoFb"></label>
         <label class="field"><span class="flabel">Religion</span><input class="input" id="eoReligion"></label>
         <label class="field"><span class="flabel">Civil status</span>
           <select class="input" id="eoCivil"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
@@ -2502,7 +2501,7 @@ function renderEmployeeOnboard(done){
         presentAddress:present, permanentAddress:permanent,
         permanentAddressLine:addrLine(permanent.street, permanent.barangay, permanent.city, permanent.province, permanent.zip),
         yearsAtAddress:v('#eoYearsAddress'), landline:v('#eoLandline'), birthplace:v('#eoBirthplace'),
-        fbAccount:v('#eoFb'), religion:v('#eoReligion'), weddingDate:v('#eoWeddingDate'),
+        religion:v('#eoReligion'), weddingDate:v('#eoWeddingDate'),
         spouseName:v('#eoSpouseName'), spouseBirth:v('#eoSpouseBirth'), spouseOccupation:v('#eoSpouseOcc'),
         numChildren:v('#eoNumChildren'), taxStatus:v('#eoTaxStatus'),
         sssNo:v('#eoSss'), tinNo:v('#eoTin'), pagibigNo:v('#eoPagibig'), philhealthNo:v('#eoPhilhealth'),
