@@ -2262,26 +2262,26 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">First name *</span><input class="input" id="eoFirst"></label>
         <label class="field"><span class="flabel">Middle name</span><input class="input" id="eoMiddle"></label>
         <label class="field"><span class="flabel">Nickname</span><input class="input" id="eoNickname"></label>
-        <label class="field"><span class="flabel">Mobile no.</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
+        <label class="field"><span class="flabel">Mobile no. *</span><input class="input" id="eoMobile" placeholder="0917 000 0000"></label>
         <label class="field"><span class="flabel">Landline no.</span><input class="input" id="eoLandline"></label>
-        <label class="field"><span class="flabel">Birth date</span><input class="input" type="date" id="eoBirth"></label>
-        <label class="field"><span class="flabel">Birthplace</span><input class="input" id="eoBirthplace"></label>
-        <label class="field"><span class="flabel">Nationality</span><input class="input" id="eoNat" value="Filipino"></label>
-        <label class="field"><span class="flabel">Sex</span><select class="input" id="eoSex"><option>Male</option><option>Female</option></select></label>
+        <label class="field"><span class="flabel">Birth date *</span><input class="input" type="date" id="eoBirth"></label>
+        <label class="field"><span class="flabel">Birthplace *</span><input class="input" id="eoBirthplace"></label>
+        <label class="field"><span class="flabel">Nationality *</span><input class="input" id="eoNat" value="Filipino"></label>
+        <label class="field"><span class="flabel">Sex *</span><select class="input" id="eoSex"><option>Male</option><option>Female</option></select></label>
         <label class="field"><span class="flabel">Email address</span><input class="input" type="email" id="eoEmail"></label>
         <label class="field"><span class="flabel">Religion</span><input class="input" id="eoReligion"></label>
-        <label class="field"><span class="flabel">Civil status</span>
+        <label class="field"><span class="flabel">Civil status *</span>
           <select class="input" id="eoCivil"><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
-        <label class="field"><span class="flabel">Wedding date</span><input class="input" type="date" id="eoWeddingDate"></label>
+        <label class="field" id="eoWeddingRow" style="display:none"><span class="flabel">Wedding date</span><input class="input" type="date" id="eoWeddingDate"></label>
       </div>
 
       <div class="flabel" style="margin-top:14px">Present address</div>
       <div class="fgrid fg2">
-        <label class="field span2"><span class="flabel">Street / house no. / subdivision</span><input class="input" id="eoPresStreet"></label>
-        <label class="field"><span class="flabel">Barangay</span><input class="input" id="eoPresBarangay"></label>
-        <label class="field"><span class="flabel">City / municipality</span><input class="input" id="eoPresCity"></label>
-        <label class="field"><span class="flabel">Province</span><input class="input" id="eoPresProvince"></label>
-        <label class="field"><span class="flabel">Zip code</span><input class="input" id="eoPresZip"></label>
+        <label class="field span2"><span class="flabel">Street / house no. / subdivision *</span><input class="input" id="eoPresStreet"></label>
+        <label class="field"><span class="flabel">Barangay *</span><input class="input" id="eoPresBarangay"></label>
+        <label class="field"><span class="flabel">City / municipality *</span><input class="input" id="eoPresCity"></label>
+        <label class="field"><span class="flabel">Province *</span><input class="input" id="eoPresProvince"></label>
+        <label class="field"><span class="flabel">Zip code *</span><input class="input" id="eoPresZip"></label>
       </div>
 
       <label class="row" style="margin-top:10px;gap:8px;cursor:pointer">
@@ -2309,10 +2309,10 @@ function renderEmployeeOnboard(done){
 
       <div class="fgrid fg2" style="margin-top:12px">
         <label class="field"><span class="flabel">Tax status</span><input class="input" id="eoTaxStatus"></label>
-        <label class="field"><span class="flabel">SSS no.</span><input class="input" id="eoSss"></label>
-        <label class="field"><span class="flabel">TIN no.</span><input class="input" id="eoTin"></label>
-        <label class="field"><span class="flabel">Pag-IBIG no.</span><input class="input" id="eoPagibig"></label>
-        <label class="field"><span class="flabel">PhilHealth no.</span><input class="input" id="eoPhilhealth"></label>
+        <label class="field"><span class="flabel">SSS no. *</span><input class="input" id="eoSss"></label>
+        <label class="field"><span class="flabel">TIN no. *</span><input class="input" id="eoTin"></label>
+        <label class="field"><span class="flabel">Pag-IBIG no. *</span><input class="input" id="eoPagibig"></label>
+        <label class="field"><span class="flabel">PhilHealth no. *</span><input class="input" id="eoPhilhealth"></label>
       </div>
 
       </div>
@@ -2424,9 +2424,16 @@ function renderEmployeeOnboard(done){
   $('#eoBack').onclick = () => showEoStep(eoStep - 1);
   $('#eoNext').onclick = () => {
     if (eoStep === 0){
-      const first = $('#eoFirst').value.trim(), last = $('#eoLast').value.trim();
-      if (!first || !last){
-        $('#eoErr').textContent = 'First name and last name are required.';
+      const required = [
+        ['#eoLast','Last name'], ['#eoFirst','First name'], ['#eoMobile','Mobile no.'],
+        ['#eoBirth','Birth date'], ['#eoBirthplace','Birthplace'], ['#eoNat','Nationality'],
+        ['#eoPresStreet','Street / house no. / subdivision'], ['#eoPresBarangay','Barangay'],
+        ['#eoPresCity','City / municipality'], ['#eoPresProvince','Province'], ['#eoPresZip','Zip code'],
+        ['#eoSss','SSS no.'], ['#eoTin','TIN no.'], ['#eoPagibig','Pag-IBIG no.'], ['#eoPhilhealth','PhilHealth no.'],
+      ];
+      const missing = required.filter(([id]) => !$(id).value.trim());
+      if (missing.length){
+        $('#eoErr').textContent = `Required: ${missing.map(([,label]) => label).join(', ')}.`;
         $('#eoErr').style.display = 'block';
         return;
       }
@@ -2445,6 +2452,10 @@ function renderEmployeeOnboard(done){
 
   $('#eoBranch').onchange = () => { $('#eoStoreRow').style.display = $('#eoBranch').value === 'STR' ? '' : 'none'; };
   $('#eoSameAddress').onchange = e => { $('#eoPermAddressBlock').style.display = e.target.checked ? 'none' : ''; };
+  $('#eoCivil').onchange = () => {
+    $('#eoWeddingRow').style.display = $('#eoCivil').value === 'Married' ? '' : 'none';
+    if ($('#eoCivil').value !== 'Married') $('#eoWeddingDate').value = '';
+  };
   LICENSE_GROUPS.forEach(g => {
     g.items.forEach((item,i) => {
       const cb = $(`#eoLic_${g.key}_${i}`), no = $(`#eoLic_${g.key}_${i}_no`);
