@@ -2335,7 +2335,8 @@ function renderEmployeeOnboard(done){
         <label class="field"><span class="flabel">Status</span>
           <select class="input" id="eoStatus">${EMPLOYMENT_STATUSES.map(s => `<option>${esc(s)}</option>`).join('')}</select></label>
         <label class="field"><span class="flabel">Date hired *</span><input class="input" type="date" id="eoHired"></label>
-        <label class="field"><span class="flabel">Immediate supervisor</span><input class="input" id="eoSupervisor"></label>
+        <label class="field"><span class="flabel">Immediate supervisor</span><input class="input" id="eoSupervisor" placeholder="Surname, First name Middle name">
+          <span class="hint">Format: Surname, First name Middle name (e.g. Santos, Dolly Dancel)</span></label>
       </div>
 
       </div>
