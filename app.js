@@ -2365,7 +2365,7 @@ function renderEmployeeOnboard(done){
       </div>
 
       <div class="eo-step" data-eo-panel="4">
-      ${sec('III. Educational attainment')}
+      ${sec('Educational attainment')}
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
         <thead><tr style="font-size:11px;color:var(--ink-3);text-align:left"><th></th><th style="padding:0 4px 4px">Name of school</th><th style="padding:0 4px 4px">From</th><th style="padding:0 4px 4px">To</th><th style="padding:0 4px 4px">Course / Degree / Awards</th></tr></thead>
         <tbody>${EDU_LEVELS.map(eduRow).join('')}</tbody>
