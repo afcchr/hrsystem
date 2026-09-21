@@ -4854,8 +4854,11 @@ async function bootPortal(){
 let _booted = false;
 async function boot(){
   if (_booted) return; _booted = true;
-  initTheme();
 
+  // The public-facing portal pages (#/apply/…, #/onboard) are meant to look
+  // identical to every visitor — an applicant or new hire has no admin theme
+  // preference to inherit, and the portal's own CSS assumes a fixed light
+  // background. So the dark/light toggle only applies past this point.
   if (location.hash.startsWith('#/apply/')){
     await bootPortal();
     return;
@@ -4868,6 +4871,7 @@ async function boot(){
     return;
   }
 
+  initTheme();
   wireAuthForm();
   let session = null;
   try{ session = await Auth.getSession(); }catch(e){ console.error('[Supabase] session check failed', e); }
